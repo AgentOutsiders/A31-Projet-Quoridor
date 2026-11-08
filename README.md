@@ -10,7 +10,8 @@ A - Consignes générales
 
 ### Pour constituer les équipes
 
-Le projet se fait **en binôme d'étudiants du même groupe TP**. En cas de nombre d'étudiants impair, vous pouvez constituer un monôme ou un trinôme.
+- Le projet se fait **en binôme d'étudiants du même groupe TP**.
+- En cas de nombre d'étudiants impair, vous pouvez constituer un monôme ou un trinôme.
 
 Commencez par inscrire votre équipe dans ce fichier partagé : <https://seafile.unistra.fr/f/0d16d9c2a758472e973b/>.
 
@@ -22,8 +23,6 @@ Commencez par inscrire votre équipe dans ce fichier partagé : <https://seafile
 
 ### Pour toute la durée du projet
 
-- Ce projet est à réaliser **en binôme**.
-- Les deux membres du binôme doivent appartenir au **même groupe TP**.
 - Vous devez concevoir avec UML et implémenter en Java le jeu de société "Quoridor", en respectant une **architecture MVC** et en proposant une **interface graphique en Swing**.
 - Vous devez respecter les **principes de conception** et mettre en œuvre les **patrons de conception** vus en cours, **lorsque cela est pertinent**. Attention, il ne s'agit pas d'essayer d'utiliser tous les patrons de conception vus en cours !
 - Il est possible que vous soyez amenés à **renoncer à une partie du développement par manque de temps**. Dans ce cas, il faudra le signaler dans le rapport final (Exemple : "il aurait fallu faire *ceci* mais nous n’avions pas assez de temps et avons préféré nous concentrer sur *cela* parce que ...").
@@ -52,7 +51,7 @@ Ce jeu de société comporte :
 - **1 pion par joueur**,
 - **20 murs**
 
-Pour le mode de jeu Pacman, il y a ne plus :
+Pour le mode de jeu Pacman, il y a en plus :
 
 - **1 Pacman**
 - **4 Pac-gommes**
