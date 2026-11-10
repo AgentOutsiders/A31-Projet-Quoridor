@@ -6,6 +6,65 @@ hide interface attributes
 
 package view {
 
+    ' Main window: holds all screens and switches between them
+    class QuoridorWindow extends JFrame {
+        - cardLayout : CardLayout
+        - homePanel : HomePanel
+        - configPanel : ConfigPanel
+        - placementPanel : PlacementPanel
+        - gamePanel : GamePanel
+        - endPanel : EndPanel
+        + showPage(name : String) : void
+    }
+
+    package screens {
+        ' Home screen: play and quit buttons
+        class HomePanel extends JPanel {
+
+        }
+
+        ' Placement screen: places the 6 fixed walls before a Pacman game
+        class PlacementPanel extends JPanel {
+
+        }
+
+        ' Configuration screen: game mode, grid size, walls, players
+        class ConfigPanel extends JPanel {
+
+        }
+
+        ' Game screen: shows the board and the players' information
+        class GamePanel extends JPanel {
+
+        }
+
+        ' End screen: shows the winner, the scores and a replay button
+        class EndPanel extends JPanel {
+
+        }
+    }
+
+    package components {
+        ' Draws the board and detects clicks
+        class BoardPanel extends JPanel {
+
+        }
+
+        ' Shows one player's walls and moves
+        class PlayerInfoPanel extends JPanel {
+
+        }
+    }
 }
+
+QuoridorWindow *--> HomePanel
+QuoridorWindow *--> ConfigPanel
+QuoridorWindow *--> PlacementPanel
+QuoridorWindow *--> EndPanel
+QuoridorWindow *--> GamePanel
+
+GamePanel *--> BoardPanel
+PlacementPanel *--> BoardPanel
+GamePanel *--> "2..4\n" PlayerInfoPanel
 
 @enduml

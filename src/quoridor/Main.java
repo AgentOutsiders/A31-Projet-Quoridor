@@ -1,9 +1,10 @@
 package quoridor;
 
+import quoridor.view.QuoridorWindow;
+
 public class Main
 {
-    public static void main(String[] args)
-    {
-        System.out.println("Hello Quoridor");
+    public static void main(String[] args) {
+        QuoridorWindow quoridorWindow = new QuoridorWindow();
     }
 }
