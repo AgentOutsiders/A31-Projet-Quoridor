@@ -1,0 +1,10 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle Bold
+hide enum methods
+
+!include model.puml
+!include view.puml
+!include controller.puml
+
+@enduml
