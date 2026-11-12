@@ -1,10 +1,24 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
-hide enum methods
+hide empty members
 
 !include model.puml
 !include view.puml
 !include controller.puml
 
+class Main {
+    + {static} main(args : String[*])
+}
+
+Main ..> GameController : <<instantiate>>
+Main ..> QuoridorWindow : <<instantiate>>
+
+' The controller keeps the window to change the displayed page
+GameController "1" o--> "1\n - quoridorWindow" QuoridorWindow : controls >
+
+' The view gives the user actions to the controller
+QuoridorWindow ..> GameController : <<use>>
+HomePanel ..> GameController : <<use>>
+ConfigPanel ..> GameController : <<use>>
 @enduml

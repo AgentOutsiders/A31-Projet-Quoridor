@@ -1,35 +1,57 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
-hide enum methods
-hide interface attributes
+hide empty members
+
+' Class names are global, so JPanel is not duplicated in each package
+set separator none
 
 package view {
 
     ' Main window: holds all screens and switches between them
     class QuoridorWindow extends JFrame {
+        + {static} HOME : String
+        + {static} CONFIG : String
         - cardLayout : CardLayout
-        - homePanel : HomePanel
-        - configPanel : ConfigPanel
-        - placementPanel : PlacementPanel
-        - gamePanel : GamePanel
-        - endPanel : EndPanel
-        + showPage(name : String) : void
+        - container : JPanel
+        + <<create>> QuoridorWindow(controller : GameController)
+        + showPage(name : String)
     }
 
     package screens {
         ' Home screen: play and quit buttons
         class HomePanel extends JPanel {
-
-        }
-
-        ' Placement screen: places the 6 fixed walls before a Pacman game
-        class PlacementPanel extends JPanel {
-
+            - {static} BACKGROUND : Color
+            - {static} TITLE_BACKGROUND : Color
+            - {static} PRIMARY : Color
+            - {static} PRIMARY_HOVER : Color
+            - {static} TEXT_LIGHT : Color
+            + <<create>> HomePanel(controller : GameController)
+            - createButton(buttonName : String) : JButton
+            - createLabel(labelName : String) : JLabel
         }
 
         ' Configuration screen: game mode, grid size, walls, players
         class ConfigPanel extends JPanel {
+            - {static} BACKGROUND : Color
+            - {static} PRIMARY : Color
+            - {static} TEXT_LIGHT : Color
+            - {static} TEXT_DARK : Color
+            - {static} UNSELECTED : Color
+            - classicButton : JToggleButton
+            - pacmanButton : JToggleButton
+            - grid9 : JToggleButton
+            - grid11 : JToggleButton
+            - wall8 : JToggleButton
+            - wall10 : JToggleButton
+            - wall12 : JToggleButton
+            + <<create>> ConfigPanel(controller : GameController)
+            - createToggleButton(text : String) : JToggleButton
+            - updateColors(button : JToggleButton)
+        }
+
+        ' Placement screen: places the 6 fixed walls before a Pacman game
+        class PlacementPanel extends JPanel {
 
         }
 
@@ -57,14 +79,15 @@ package view {
     }
 }
 
-QuoridorWindow *--> HomePanel
-QuoridorWindow *--> ConfigPanel
-QuoridorWindow *--> PlacementPanel
-QuoridorWindow *--> EndPanel
-QuoridorWindow *--> GamePanel
+' The screens are attributes of the window, shown as compositions
+QuoridorWindow "1" *--> "1\n - homePanel" HomePanel : < belongs to
+QuoridorWindow "1" *--> "1\n - configPanel" ConfigPanel : < belongs to
+QuoridorWindow "1" *--> "1\n - placementPanel" PlacementPanel : < belongs to
+QuoridorWindow "1" *--> "1\n - gamePanel" GamePanel : < belongs to
+QuoridorWindow "1" *--> "1\n - endPanel" EndPanel : < belongs to
 
-GamePanel *--> BoardPanel
-PlacementPanel *--> BoardPanel
-GamePanel *--> "2..4\n" PlayerInfoPanel
+GamePanel "1" *--> "1\n - boardPanel" BoardPanel : < belongs to
+PlacementPanel "1" *--> "1\n - boardPanel" BoardPanel : < belongs to
+GamePanel "1" *--> "2..4\n - playerInfoPanels" PlayerInfoPanel : < belongs to
 
 @enduml

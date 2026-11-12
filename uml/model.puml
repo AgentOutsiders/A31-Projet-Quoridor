@@ -1,8 +1,7 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
-hide enum methods
-hide interface attributes
+hide empty members
 
 package model {
 
