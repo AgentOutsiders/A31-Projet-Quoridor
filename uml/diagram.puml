@@ -11,14 +11,24 @@ class Main {
     + {static} main(args : String[*])
 }
 
+Main ..> Game : <<instantiate>>
 Main ..> GameController : <<instantiate>>
 Main ..> QuoridorWindow : <<instantiate>>
 
-' The controller keeps the window to change the displayed page
-GameController "1" o--> "1\n - quoridorWindow" QuoridorWindow : controls >
+' La fenêtre principale implémente l'observateur du modèle
+QuoridorWindow ..|> GameObserver
 
-' The view gives the user actions to the controller
+' Le contrôleur manipule le modèle et la fenêtre
+GameController "1" o--> "1\n - m_game" Game : modifies >
+GameController "1" o--> "1\n - m_quoridorWindow" QuoridorWindow : controls >
+
+' La vue transmet les événements utilisateur au contrôleur
 QuoridorWindow ..> GameController : <<use>>
 HomePanel ..> GameController : <<use>>
 ConfigPanel ..> GameController : <<use>>
+PlacementPanel ..> GameController : <<use>>
+GamePanel ..> GameController : <<use>>
+BoardPanel ..> GameController : <<use>>
+EndPanel ..> GameController : <<use>>
+
 @enduml

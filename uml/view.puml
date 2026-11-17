@@ -3,8 +3,17 @@ skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
 hide empty members
 
-' Class names are global, so JPanel is not duplicated in each package
 set separator none
+
+package swing {
+    class JFrame
+    class JPanel
+    class JButton
+    class JLabel
+    class JToggleButton
+    class CardLayout
+    class Color
+}
 
 package view {
 
@@ -12,20 +21,15 @@ package view {
     class QuoridorWindow extends JFrame {
         + {static} HOME : String
         + {static} CONFIG : String
-        - cardLayout : CardLayout
-        - container : JPanel
         + <<create>> QuoridorWindow(controller : GameController)
         + showPage(name : String)
+        + onBoardUpdated()
+        + onGameOver(winnerName : String)
     }
 
     package screens {
         ' Home screen: play and quit buttons
         class HomePanel extends JPanel {
-            - {static} BACKGROUND : Color
-            - {static} TITLE_BACKGROUND : Color
-            - {static} PRIMARY : Color
-            - {static} PRIMARY_HOVER : Color
-            - {static} TEXT_LIGHT : Color
             + <<create>> HomePanel(controller : GameController)
             - createButton(buttonName : String) : JButton
             - createLabel(labelName : String) : JLabel
@@ -33,18 +37,6 @@ package view {
 
         ' Configuration screen: game mode, grid size, walls, players
         class ConfigPanel extends JPanel {
-            - {static} BACKGROUND : Color
-            - {static} PRIMARY : Color
-            - {static} TEXT_LIGHT : Color
-            - {static} TEXT_DARK : Color
-            - {static} UNSELECTED : Color
-            - classicButton : JToggleButton
-            - pacmanButton : JToggleButton
-            - grid9 : JToggleButton
-            - grid11 : JToggleButton
-            - wall8 : JToggleButton
-            - wall10 : JToggleButton
-            - wall12 : JToggleButton
             + <<create>> ConfigPanel(controller : GameController)
             - createToggleButton(text : String) : JToggleButton
             - updateColors(button : JToggleButton)
@@ -52,42 +44,57 @@ package view {
 
         ' Placement screen: places the 6 fixed walls before a Pacman game
         class PlacementPanel extends JPanel {
-
+            + <<create>> PlacementPanel(controller : GameController)
         }
 
         ' Game screen: shows the board and the players' information
         class GamePanel extends JPanel {
-
+            + <<create>> GamePanel(controller : GameController)
+            + refreshDisplay()
         }
 
         ' End screen: shows the winner, the scores and a replay button
         class EndPanel extends JPanel {
-
+            + <<create>> EndPanel(controller : GameController)
+            + setWinner(winnerName : String)
         }
     }
 
     package components {
         ' Draws the board and detects clicks
         class BoardPanel extends JPanel {
-
+            + <<create>> BoardPanel(controller : GameController)
+            + repaintBoard()
         }
 
         ' Shows one player's walls and moves
         class PlayerInfoPanel extends JPanel {
-
+            + <<create>> PlayerInfoPanel()
+            + updateInfo(wallsLeft : Integer, movesCount : Integer)
         }
     }
 }
 
-' The screens are attributes of the window, shown as compositions
-QuoridorWindow "1" *--> "1\n - homePanel" HomePanel : < belongs to
-QuoridorWindow "1" *--> "1\n - configPanel" ConfigPanel : < belongs to
-QuoridorWindow "1" *--> "1\n - placementPanel" PlacementPanel : < belongs to
-QuoridorWindow "1" *--> "1\n - gamePanel" GamePanel : < belongs to
-QuoridorWindow "1" *--> "1\n - endPanel" EndPanel : < belongs to
+' Relations avec les classes Swing/AWT
+QuoridorWindow "1" *--> "1\n - m_cardLayout" CardLayout : < belongs to
+QuoridorWindow "1" *--> "1\n - m_container" JPanel : < belongs to
 
-GamePanel "1" *--> "1\n - boardPanel" BoardPanel : < belongs to
-PlacementPanel "1" *--> "1\n - boardPanel" BoardPanel : < belongs to
-GamePanel "1" *--> "2..4\n - playerInfoPanels" PlayerInfoPanel : < belongs to
+HomePanel "1" *--> "5\n - m_colors" Color : < belongs to
+HomePanel ..> JButton : <<instantiate>>
+HomePanel ..> JLabel : <<instantiate>>
+
+ConfigPanel "1" *--> "5\n - m_colors" Color : < belongs to
+ConfigPanel "1" *--> "7\n - m_toggleButtons" JToggleButton : < belongs to
+
+' Compositions entre la fenêtre et ses panneaux
+QuoridorWindow "1" *--> "1\n - m_homePanel" HomePanel : < belongs to
+QuoridorWindow "1" *--> "1\n - m_configPanel" ConfigPanel : < belongs to
+QuoridorWindow "1" *--> "1\n - m_placementPanel" PlacementPanel : < belongs to
+QuoridorWindow "1" *--> "1\n - m_gamePanel" GamePanel : < belongs to
+QuoridorWindow "1" *--> "1\n - m_endPanel" EndPanel : < belongs to
+
+GamePanel "1" *--> "1\n - m_boardPanel" BoardPanel : < belongs to
+PlacementPanel "1" *--> "1\n - m_boardPanel" BoardPanel : < belongs to
+GamePanel "1" *--> "2..4\n - m_playerInfoPanels" PlayerInfoPanel : < belongs to
 
 @enduml
