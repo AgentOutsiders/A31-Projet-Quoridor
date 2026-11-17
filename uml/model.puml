@@ -5,6 +5,125 @@ hide empty members
 
 package model {
 
+    enum GameMode <<enumerate>> {
+        CLASSIC
+        PACMAN
+    }
+
+    interface GameObserver <<interface>> {
+        + {abstract} onBoardUpdated()
+        + {abstract} onGameOver(winnerName : String)
+    }
+
+    ' Coordonnées (x, y) d'une case ou d'une intersection
+    class Position {
+        - m_x : Integer
+        - m_y : Integer
+        + <<create>> Position(x : Integer, y : Integer)
+        + getX() : Integer
+        + getY() : Integer
+        + isAdjacentTo(other : Position) : Boolean
+    }
+
+    ' Mur de longueur 2 ancré en (x, y) avec une orientation
+    class Wall {
+        - m_isHorizontal : Boolean
+        + <<create>> Wall(position : Position, isHorizontal : Boolean)
+        + getPosition() : Position
+        + isHorizontal() : Boolean
+        + blocksPassage(from : Position, to : Position) : Boolean
+        + overlapsWith(other : Wall) : Boolean
+    }
+
+    ' Plateau de jeu et algorithme de parcours en largeur (BFS)
+    class Board {
+        - m_size : Integer
+        + <<create>> Board(size : Integer)
+        + getSize() : Integer
+        + isInside(pos : Position) : Boolean
+        + canPass(from : Position, to : Position) : Boolean
+        + canPlaceWall(wall : Wall) : Boolean
+        + addWall(wall : Wall)
+        + removeWall(wall : Wall)
+        + getAccessibleNeighbors(pos : Position) : Position[*]
+        + getShortestPath(start : Position, targetGoal : Integer) : Position[*]
+        + hasPathToGoal(player : Player) : Boolean
+    }
+
+    abstract class Player <<abstract>> {
+        - m_name : String
+        - m_remainingWalls : Integer
+        - m_moveCount : Integer
+        - m_goalCoordinate : Integer
+        + <<create>> Player(name : String, startPos : Position, walls : Integer, goal : Integer)
+        + getName() : String
+        + getPosition() : Position
+        + setPosition(newPos : Position)
+        + getRemainingWalls() : Integer
+        + decrementWalls()
+        + getMoveCount() : Integer
+        + incrementMoveCount()
+        + getGoalCoordinate() : Integer
+        + {abstract} isBot() : Boolean
+    }
+
+    class HumanPlayer extends Player {
+        + <<create>> HumanPlayer(name : String, startPos : Position, walls : Integer, goal : Integer)
+        + isBot() : Boolean
+    }
+
+    class BotPlayer extends Player {
+        + <<create>> BotPlayer(name : String, startPos : Position, walls : Integer, goal : Integer, strategy : BotStrategy)
+        + isBot() : Boolean
+        + computeNextTurn(game : Game)
+    }
+
+    ' Patron Strategy pour les différents niveaux de l'ordinateur (E1, E2, E3)
+    interface BotStrategy <<interface>> {
+        + {abstract} executeTurn(bot : BotPlayer, game : Game)
+    }
+
+    class RandomBotStrategy implements BotStrategy {
+        + <<create>> RandomBotStrategy()
+        + executeTurn(bot : BotPlayer, game : Game)
+    }
+
+    class ShortestPathBotStrategy implements BotStrategy {
+        + <<create>> ShortestPathBotStrategy()
+        + executeTurn(bot : BotPlayer, game : Game)
+    }
+
+    ' Classe centrale du modèle qui gère la partie et notifie la Vue
+    class Game {
+        - m_currentPlayerIndex : Integer
+        - m_isFinished : Boolean
+        - m_pacmanLives : Integer
+        - m_eatenPacGums : Integer
+        + <<create>> Game(boardSize : Integer, wallsPerPlayer : Integer, mode : GameMode)
+        + addObserver(observer : GameObserver)
+        + notifyBoardUpdated()
+        + notifyGameOver(winnerName : String)
+        + moveCurrentPlayer(target : Position) : Boolean
+        + placeWallForCurrentPlayer(wall : Wall) : Boolean
+        + nextTurn()
+        + checkVictory() : Boolean
+        + resetGame()
+    }
+
+    ' Relations internes au modèle
+    Wall "1" *--> "1\n - m_position" Position : is anchored at >
+
+    Board "1" *--> "*\n - m_walls" Wall : contains >
+    Board "1" *--> "*\n - m_pacGums" Position : contains >
+    Board ..> Position : <<use>>
+
+    Player "1" *--> "1\n - m_position" Position : is located at >
+    BotPlayer "1" o--> "1\n - m_strategy" BotStrategy : uses >
+
+    Game "1" *--> "1\n - m_board" Board : manages >
+    Game "1" *--> "2..4\n - m_players" Player : includes >
+    Game "1" *--> "1\n - m_mode" GameMode : has >
+    Game "1" o--> "*\n - m_observers" GameObserver : notifies >
 }
 
 @enduml

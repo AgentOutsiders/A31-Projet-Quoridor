@@ -5,11 +5,15 @@ hide empty members
 
 package controller {
 
-    ' Receives the user actions from the view and changes the displayed page
-    ' (its window is shown by a relation in diagram.puml)
+    ' Reçoit les actions de la vue, met à jour le modèle et pilote la navigation
     class GameController {
+        + <<create>> GameController(game : Game)
         + setWindow(quoridorWindow : QuoridorWindow)
+        + startNewGame(gridSize : Integer, wallsCount : Integer, isPacman : Boolean, vsBot : Boolean)
+        + handleCellClick(x : Integer, y : Integer)
+        + handleWallClick(x : Integer, y : Integer, isHorizontal : Boolean)
         + play()
+        + restartGame()
         + quit()
     }
 }
