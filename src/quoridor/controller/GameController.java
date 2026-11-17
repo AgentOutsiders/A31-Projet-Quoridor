@@ -1,11 +1,17 @@
 package quoridor.controller;
 
+import quoridor.model.Game;
+import quoridor.model.GameMode;
 import quoridor.view.QuoridorWindow;
+import quoridor.view.screens.ConfigPanel;
 
 public class GameController {
 
     /* The window, to change the displayed page */
     private QuoridorWindow quoridorWindow;
+
+    /* The current game, created when the player starts a game */
+    private Game game;
 
     /* To give the window to the controller after its creation */
     public void setWindow(QuoridorWindow quoridorWindow) {
@@ -29,6 +35,26 @@ public class GameController {
 
     /* Called when the player clicks on "Lancer la partie" */
     public void startGame() {
-        System.out.println("Start game clicked");
+        ConfigPanel configPanel = quoridorWindow.getConfigPanel();
+
+        GameMode gameMode = configPanel.getGameMode();
+        int gridSize = configPanel.getGridSize();
+        int wallCount = configPanel.getWallCount();
+        int playerCount = configPanel.getPlayerCount();
+        boolean computerOpponent = configPanel.isComputerOpponent();
+
+        System.out.println("Mode : " + gameMode);
+        System.out.println("Taille de la grille : " + gridSize);
+        System.out.println("Nombre de murs : " + wallCount);
+        System.out.println("Nombre de joueurs : " + playerCount);
+        System.out.println("Adversaire IA : " + computerOpponent);
+
+        this.game = new Game(gridSize, wallCount, gameMode);
+
+        /* We give the game to the game page, then we show it */
+        quoridorWindow.getGamePanel().setGame(this.game);
+        quoridorWindow.showPage(QuoridorWindow.GAME);
     }
+
+
 }

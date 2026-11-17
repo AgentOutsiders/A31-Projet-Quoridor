@@ -1,6 +1,7 @@
 package quoridor.view.screens;
 
 import quoridor.controller.GameController;
+import quoridor.model.GameMode;
 
 import javax.swing.*;
 import java.awt.*;
@@ -319,5 +320,50 @@ public class ConfigPanel extends JPanel {
         updateColors(player4Button);
         updateColors(humanButton);
         updateColors(computerButton);
+    }
+
+    public int getGridSize()
+    {
+        if(grid9Button.isSelected()) {
+            return 9;
+        }
+        return 11;
+    }
+
+    public int getWallCount() {
+        if(pacmanButton.isSelected()) {
+            return 0;
+        }
+        else {
+            if(wall8Button.isSelected()) {
+                return 8;
+            } else if (wall10Button.isSelected()) {
+                return 10;
+            }
+            return 12;
+        }
+    }
+
+    public GameMode getGameMode() {
+        if(pacmanButton.isSelected()) {
+            return GameMode.PACMAN;
+        }
+        return GameMode.CLASSIC;
+    }
+
+    public int getPlayerCount() {
+        if(pacmanButton.isSelected()) {
+            return 4;
+        }
+        else {
+            if(player2Button.isSelected()) {
+                return 2;
+            }
+            return 4;
+        }
+    }
+
+    public boolean isComputerOpponent() {
+        return computerButton.isSelected();
     }
 }

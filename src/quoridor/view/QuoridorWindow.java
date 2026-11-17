@@ -2,6 +2,7 @@ package quoridor.view;
 
 import quoridor.controller.GameController;
 import quoridor.view.screens.ConfigPanel;
+import quoridor.view.screens.GamePanel;
 import quoridor.view.screens.HomePanel;
 
 import javax.swing.*;
@@ -12,6 +13,7 @@ public class QuoridorWindow extends JFrame {
     /* Names of the pages */
     public static final String HOME = "Home";
     public static final String CONFIG = "Config";
+    public static final String GAME = "Game";
 
     /* The layout that shows only one page at a time */
     private CardLayout cardLayout;
@@ -20,6 +22,7 @@ public class QuoridorWindow extends JFrame {
     private JPanel container;
     private HomePanel homePanel;
     private ConfigPanel configPanel;
+    private GamePanel gamePanel;
 
     public QuoridorWindow(GameController controller) {
         /* For the title */
@@ -44,10 +47,12 @@ public class QuoridorWindow extends JFrame {
         /* We create each page */
         homePanel = new HomePanel(controller);
         configPanel = new ConfigPanel(controller);
+        gamePanel = new GamePanel(controller);
 
         /* We add each page with its name */
         container.add(homePanel, HOME);
         container.add(configPanel, CONFIG);
+        container.add(gamePanel, GAME);
 
         /* We show the home page first */
         showPage(HOME);
@@ -59,5 +64,14 @@ public class QuoridorWindow extends JFrame {
     /* To show the page with the given name */
     public void showPage(String name) {
         cardLayout.show(container, name);
+    }
+
+    public ConfigPanel getConfigPanel() {
+        return this.configPanel;
+    }
+
+    /* To give the game page to the controller */
+    public GamePanel getGamePanel() {
+        return this.gamePanel;
     }
 }
