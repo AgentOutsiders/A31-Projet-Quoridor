@@ -204,7 +204,7 @@ public class Board
     // Checks if a player still has a valid path to their goal row
     public boolean hasPathToGoal(Player player)
     {
-        List<Position> path = getShortestPath(player.getPosition(), player.getGoalCoordinate());
+        List<Position> path = getShortestPath(player.getPosition(), player.getGoalCoordinate(), player.getGoalAxis());
         return !path.isEmpty();
     }
 }
