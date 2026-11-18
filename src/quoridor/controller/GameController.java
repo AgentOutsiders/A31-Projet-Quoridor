@@ -49,7 +49,7 @@ public class GameController {
         System.out.println("Nombre de joueurs : " + playerCount);
         System.out.println("Adversaire IA : " + computerOpponent);
 
-        this.game = new Game(gridSize, wallCount, gameMode);
+        this.game = new Game(gridSize, wallCount, gameMode, playerCount, computerOpponent);
 
         /* We give the game to the game page, then we show it */
         quoridorWindow.getGamePanel().setGame(this.game);

@@ -7,9 +7,9 @@ public class BotPlayer extends Player
 {
     private BotStrategy m_strategy;
 
-    public BotPlayer(String name, Position startPos, int remainingWalls, int goalCoordinate, BotStrategy strategy)
+    public BotPlayer(String name, Position startPos, int remainingWalls, int goalCoordinate, GoalAxis goalAxis, BotStrategy strategy)
     {
-        super(name, startPos, remainingWalls, goalCoordinate);
+        super(name, startPos, remainingWalls, goalCoordinate, goalAxis);
         this.m_strategy = strategy;
     }
 
