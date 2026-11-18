@@ -2,6 +2,7 @@ package quoridor.view.screens;
 
 import quoridor.controller.GameController;
 import quoridor.model.Game;
+import quoridor.view.components.BoardPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,8 +18,8 @@ public class GamePanel extends JPanel {
     /* The current game, given when the player starts a game */
     private Game game;
 
-    /* Temporary label to check that the game is received */
-    private JLabel testLabel;
+    /* The board drawn in the middle of the page */
+    private BoardPanel boardPanel;
 
     public GamePanel(GameController controller) {
         this.controller = controller;
@@ -26,16 +27,15 @@ public class GamePanel extends JPanel {
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND);
 
-        /* For now, a simple text in the middle of the page */
-        testLabel = new JLabel("GamePanel");
-        add(testLabel);
+        boardPanel = new BoardPanel();
+        add(boardPanel);
     }
 
     /* To give the game to the page after its creation */
     public void setGame(Game game) {
         this.game = game;
 
-        /* Test: we show the size of the board */
-        testLabel.setText("Taille du plateau : " + game.getBoard().getSize());
+        /* The board needs the game to draw it */
+        boardPanel.setGame(game);
     }
 }
