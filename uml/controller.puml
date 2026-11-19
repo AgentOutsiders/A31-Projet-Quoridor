@@ -1,20 +1,20 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
+skinparam style strictuml
 hide empty members
 
 package controller {
 
-    ' Reçoit les actions de la vue, met à jour le modèle et pilote la navigation
+    ' Receives the view actions, updates the model and switches pages
     class GameController {
-        + <<create>> GameController(game : Game)
         + setWindow(quoridorWindow : QuoridorWindow)
-        + startNewGame(gridSize : Integer, wallsCount : Integer, isPacman : Boolean, vsBot : Boolean)
-        + handleCellClick(x : Integer, y : Integer)
-        + handleWallClick(x : Integer, y : Integer, isHorizontal : Boolean)
         + play()
-        + restartGame()
         + quit()
+        + goHome()
+        + startGame()
+        + onCellClicked(position : Position)
+        + onWallClicked(wall : Wall)
     }
 }
 
