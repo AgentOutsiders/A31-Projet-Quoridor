@@ -1,7 +1,7 @@
 package quoridor.model;
 
 import quoridor.model.board.*;
-
+import quoridor.model.players.GoalAxis;
 import quoridor.model.players.HumanPlayer;
 import quoridor.model.players.Player;
 
@@ -16,8 +16,11 @@ public class Game
     private int m_currentPlayerIndex;
     private boolean m_isFinished;
     private final int m_wallsPerPlayer;
+    private final GameMode m_mode;
+    private final int m_playerCount;
+    private final boolean m_computerOpponent;
 
-    public Game(int boardSize, int wallsPerPlayer, GameMode mode)
+    public Game(int boardSize, int wallsPerPlayer, GameMode mode, int playerCount, boolean computerOpponent)
     {
         this.m_board = new Board(boardSize);
         this.m_players = new ArrayList<>();
@@ -25,6 +28,9 @@ public class Game
         this.m_currentPlayerIndex = 0;
         this.m_isFinished = false;
         this.m_wallsPerPlayer = wallsPerPlayer;
+        this.m_mode = mode;
+        this.m_playerCount = playerCount;
+        this.m_computerOpponent = computerOpponent;
 
         initPlayers(boardSize, wallsPerPlayer);
     }
@@ -35,13 +41,20 @@ public class Game
 
         // Player 1 (Bottom): Starts at (middle, size - 1), goal is row 0
         Position p1Pos = new Position(middle, boardSize - 1);
-        this.m_players.add(new HumanPlayer("Player 1", p1Pos, wallsPerPlayer, 0));
+        this.m_players.add(new HumanPlayer("Player 1", p1Pos, wallsPerPlayer, 0, GoalAxis.GOAL_Y));
 
         // Player 2 (Top): Starts at (middle, 0), goal is row size - 1
         Position p2Pos = new Position(middle, 0);
-        this.m_players.add(new HumanPlayer("Player 2", p2Pos, wallsPerPlayer, boardSize - 1));
+        this.m_players.add(new HumanPlayer("Player 2", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y));
 
-        // Note: For 4 players or vs Bot, you can adapt this initialization later easily
+        if (this.m_playerCount == 4)
+        {
+            Position p3Pos = new Position(boardSize - 1, middle);
+            this.m_players.add(new HumanPlayer("Player 3", p3Pos, this.m_wallsPerPlayer, 0, GoalAxis.GOAL_X));
+
+            Position p4Pos = new Position(0, middle);
+            this.m_players.add(new HumanPlayer("Player 4", p4Pos, this.m_wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_X));
+        }
     }
 
     public void addObserver(GameObserver observer)
@@ -135,13 +148,13 @@ public class Game
             return false; // No walls left
         }
 
-        // 1. Check basic placement rules (bounds and overlaps)
+        // Check basic placement rules (bounds and overlaps)
         if (!this.m_board.canPlaceWall(wall))
         {
             return false;
         }
 
-        // 2. Simulate wall placement to check if it blocks paths
+        // Simulate wall placement to check if it blocks paths
         this.m_board.addWall(wall);
 
         boolean pathExistsForAll = true;
@@ -154,7 +167,7 @@ public class Game
             }
         }
 
-        // 3. If it traps a player, cancel the wall placement
+        // If it traps a player, cancel the wall placement
         if (!pathExistsForAll)
         {
             this.m_board.removeWall(wall);

@@ -1,6 +1,9 @@
 package quoridor.model.board;
 
 import java.util.*;
+import java.util.function.Predicate;
+
+import quoridor.model.players.GoalAxis;
 import quoridor.model.players.Player;
 
 public class Board
@@ -122,8 +125,31 @@ public class Board
     }
 
     // PATHFINDING (BFS)
-    // Finds the shortest path from 'start' to a target row (targetRowY)
-    public List<Position> getShortestPath(Position start, int targetRowY)
+    // Public method for an entire board edge (Classic mode & wall anti-trap check)
+    public List<Position> getShortestPath(Position start, int goalCoordinate, GoalAxis goalAxis)
+    {
+        return findShortestPath(start, pos ->
+        {
+            if (goalAxis == GoalAxis.GOAL_X)
+            {
+                return pos.getX() == goalCoordinate;
+            }
+            return pos.getY() == goalCoordinate;
+        });
+    }
+
+    // Overloaded method for an exact target cell (Pacman mode / chasing a target)
+    public List<Position> getShortestPath(Position start, Position exactTarget)
+    {
+        if (exactTarget == null)
+        {
+            return Collections.emptyList();
+        }
+        return findShortestPath(start, pos -> pos.equals(exactTarget));
+    }
+
+    // Core BFS algorithm written ONLY ONCE
+    private List<Position> findShortestPath(Position start, Predicate<Position> goalCondition)
     {
         if (!isInside(start))
         {
@@ -142,7 +168,7 @@ public class Board
         {
             Position current = queue.poll();
 
-            if (current.getY() == targetRowY)
+            if (goalCondition.test(current))
             {
                 goalPosition = current;
                 break;
@@ -178,7 +204,7 @@ public class Board
     // Checks if a player still has a valid path to their goal row
     public boolean hasPathToGoal(Player player)
     {
-        List<Position> path = getShortestPath(player.getPosition(), player.getGoalCoordinate());
+        List<Position> path = getShortestPath(player.getPosition(), player.getGoalCoordinate(), player.getGoalAxis());
         return !path.isEmpty();
     }
 }

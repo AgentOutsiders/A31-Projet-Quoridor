@@ -9,13 +9,15 @@ public abstract class Player
     private int m_remainingWalls;
     private int m_moveCount;
     private final int m_goalCoordinate;
+    private final GoalAxis m_goalAxis;
 
-    public Player(String name, Position startPos, int remainingWalls, int goalCoordinate)
+    public Player(String name, Position startPos, int remainingWalls, int goalCoordinate, GoalAxis goalAxis)
     {
         this.m_name = name;
         this.m_position = startPos;
         this.m_remainingWalls = remainingWalls;
         this.m_goalCoordinate = goalCoordinate;
+        this.m_goalAxis = goalAxis;
         this.m_moveCount = 0;
     }
 
@@ -60,6 +62,20 @@ public abstract class Player
     public int getGoalCoordinate()
     {
         return this.m_goalCoordinate;
+    }
+
+    public GoalAxis getGoalAxis()
+    {
+        return this.m_goalAxis;
+    }
+
+    public boolean hasReachedGoal()
+    {
+        if (this.m_goalAxis == GoalAxis.GOAL_X)
+        {
+            return this.m_position.getX() == this.m_goalCoordinate;
+        }
+        return this.m_position.getY() == this.m_goalCoordinate;
     }
 
     // Abstract method to know if the player is a computer or a human

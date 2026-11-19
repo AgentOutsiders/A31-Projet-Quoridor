@@ -4,9 +4,9 @@ import quoridor.model.board.Position;
 
 public class HumanPlayer extends Player
 {
-    public HumanPlayer(String name, Position startPos, int remainingWalls, int goalCoordinate)
+    public HumanPlayer(String name, Position startPos, int remainingWalls, int goalCoordinate, GoalAxis goalAxis)
     {
-        super(name, startPos, remainingWalls, goalCoordinate);
+        super(name, startPos, remainingWalls, goalCoordinate, goalAxis);
     }
 
     @Override
