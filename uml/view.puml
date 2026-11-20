@@ -1,100 +1,126 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
+skinparam style strictuml
 hide empty members
 
-set separator none
+class Main {
+    + {static} main(args : String[*])
+}
 
-package swing {
-    class JFrame
-    class JPanel
-    class JButton
-    class JLabel
-    class JToggleButton
-    class CardLayout
-    class Color
+package model {
+    class Game
+    enum GameMode <<enumerate>> {
+        CLASSIC
+        PACMAN
+    }
+}
+
+package controller {
+    class GameController {
+        + setWindow(quoridorWindow : QuoridorWindow)
+        + play()
+        + quit()
+        + goHome()
+        + startGame()
+    }
 }
 
 package view {
 
-    ' Main window: holds all screens and switches between them
     class QuoridorWindow extends JFrame {
         + {static} HOME : String
         + {static} CONFIG : String
+        + {static} GAME : String
         + <<create>> QuoridorWindow(controller : GameController)
         + showPage(name : String)
-        + onBoardUpdated()
-        + onGameOver(winnerName : String)
+        + getConfigPanel() : ConfigPanel
+        + getGamePanel() : GamePanel
     }
 
     package screens {
-        ' Home screen: play and quit buttons
         class HomePanel extends JPanel {
             + <<create>> HomePanel(controller : GameController)
             - createButton(buttonName : String) : JButton
             - createLabel(labelName : String) : JLabel
         }
 
-        ' Configuration screen: game mode, grid size, walls, players
         class ConfigPanel extends JPanel {
             + <<create>> ConfigPanel(controller : GameController)
+            + getGridSize() : Integer
+            + getWallCount() : Integer
+            + getGameMode() : GameMode
+            + getPlayerCount() : Integer
+            + isComputerOpponent() : Boolean
+            - createSection(title : String, row : JPanel) : JPanel
             - createToggleButton(text : String) : JToggleButton
+            - createButton(text : String) : JButton
             - updateColors(button : JToggleButton)
+            - updateOptions()
         }
 
-        ' Placement screen: places the 6 fixed walls before a Pacman game
-        class PlacementPanel extends JPanel {
-            + <<create>> PlacementPanel(controller : GameController)
-        }
-
-        ' Game screen: shows the board and the players' information
         class GamePanel extends JPanel {
             + <<create>> GamePanel(controller : GameController)
-            + refreshDisplay()
+            + setGame(game : Game)
         }
 
-        ' End screen: shows the winner, the scores and a replay button
-        class EndPanel extends JPanel {
-            + <<create>> EndPanel(controller : GameController)
-            + setWinner(winnerName : String)
-        }
+        class PlacementPanel extends JPanel
+        class EndPanel extends JPanel
     }
 
     package components {
-        ' Draws the board and detects clicks
         class BoardPanel extends JPanel {
-            + <<create>> BoardPanel(controller : GameController)
-            + repaintBoard()
+            - {static} CELL : Integer
+            - {static} GAP : Integer
+            - {static} PAWN : Integer
+            - {static} FRAME_MARGIN : Integer
+            - {static} BOARD_MARGIN : Integer
+            - {static} OFFSET : Integer
+            - {static} FRAME_ARC : Integer
+            - {static} BOARD_ARC : Integer
+            - {static} CELL_ARC : Integer
+            + <<create>> BoardPanel()
+            + setGame(game : Game)
+            - getGridPixels() : Integer
+            # paintComponent(g : Graphics)
+            - drawFrame(g2 : Graphics2D)
+            - drawBoard(g2 : Graphics2D)
+            - drawCells(g2 : Graphics2D)
+            - drawPawns(g2 : Graphics2D)
         }
 
-        ' Shows one player's walls and moves
-        class PlayerInfoPanel extends JPanel {
-            + <<create>> PlayerInfoPanel()
-            + updateInfo(wallsLeft : Integer, movesCount : Integer)
-        }
+        class PlayerInfoPanel extends JPanel
     }
 }
 
-' Relations avec les classes Swing/AWT
-QuoridorWindow "1" *--> "1\n - m_cardLayout" CardLayout : < belongs to
-QuoridorWindow "1" *--> "1\n - m_container" JPanel : < belongs to
+' Creation of the application
+Main .> GameController : <<instantiate>>
+Main .> QuoridorWindow : <<instantiate>>
 
-HomePanel "1" *--> "5\n - m_colors" Color : < belongs to
-HomePanel ..> JButton : <<instantiate>>
-HomePanel ..> JLabel : <<instantiate>>
+' Controller
+GameController "1" o--> "1\n -quoridorWindow" QuoridorWindow : controls >
+GameController "1" o--> "0..1\n -game" Game : plays >
+GameController .> GameMode : <<use>>
 
-ConfigPanel "1" *--> "5\n - m_colors" Color : < belongs to
-ConfigPanel "1" *--> "7\n - m_toggleButtons" JToggleButton : < belongs to
+' Window and its pages
+QuoridorWindow "1" *--> "1\n -homePanel" HomePanel : contains >
+QuoridorWindow "1" *--> "1\n -configPanel" ConfigPanel : contains >
+QuoridorWindow "1" *--> "1\n -gamePanel" GamePanel : contains >
+QuoridorWindow "1" *--> "1\n -placementPanel" PlacementPanel : contains >
+QuoridorWindow "1" *--> "1\n -endPanel" EndPanel : contains >
+QuoridorWindow .> GameController : <<use>>
 
-' Compositions entre la fenêtre et ses panneaux
-QuoridorWindow "1" *--> "1\n - m_homePanel" HomePanel : < belongs to
-QuoridorWindow "1" *--> "1\n - m_configPanel" ConfigPanel : < belongs to
-QuoridorWindow "1" *--> "1\n - m_placementPanel" PlacementPanel : < belongs to
-QuoridorWindow "1" *--> "1\n - m_gamePanel" GamePanel : < belongs to
-QuoridorWindow "1" *--> "1\n - m_endPanel" EndPanel : < belongs to
+' Pages
+HomePanel .> GameController : <<call>>
+ConfigPanel .> GameController : <<call>>
+ConfigPanel .> GameMode : <<use>>
+GamePanel "1" o--> "1\n -controller" GameController : notifies >
+GamePanel "1" o--> "0..1\n -game" Game : displays >
+GamePanel "1" *--> "1\n -boardPanel" BoardPanel : contains >
+GamePanel "1" *--> "2..4\n -playerInfos" PlayerInfoPanel : contains >
+PlacementPanel "1" *--> "1\n -boardPanel" BoardPanel : contains >
 
-GamePanel "1" *--> "1\n - m_boardPanel" BoardPanel : < belongs to
-PlacementPanel "1" *--> "1\n - m_boardPanel" BoardPanel : < belongs to
-GamePanel "1" *--> "2..4\n - m_playerInfoPanels" PlayerInfoPanel : < belongs to
+' Board
+BoardPanel "1" o--> "0..1\n -game" Game : draws >
 
 @enduml
