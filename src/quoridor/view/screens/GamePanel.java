@@ -2,12 +2,13 @@ package quoridor.view.screens;
 
 import quoridor.controller.GameController;
 import quoridor.model.Game;
+import quoridor.model.GameObserver;
 import quoridor.view.components.BoardPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanel extends JPanel {
+public class GamePanel extends JPanel implements GameObserver {
 
     /* Color palette of the game screen */
     private static final Color BACKGROUND = new Color(0xEF, 0xE4, 0xD2);
@@ -27,7 +28,7 @@ public class GamePanel extends JPanel {
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND);
 
-        boardPanel = new BoardPanel();
+        boardPanel = new BoardPanel(this.controller);
         add(boardPanel);
     }
 
@@ -37,5 +38,17 @@ public class GamePanel extends JPanel {
 
         /* The board needs the game to draw it */
         boardPanel.setGame(game);
+    }
+
+    /* Called by the model after each valid move: we redraw the board */
+    @Override
+    public void onBoardUpdated() {
+        boardPanel.repaint();
+    }
+
+    /* Called by the model when a player reaches the opposite side */
+    @Override
+    public void onGameOver(String winnerName) {
+        System.out.println("Winner: " + winnerName);
     }
 }

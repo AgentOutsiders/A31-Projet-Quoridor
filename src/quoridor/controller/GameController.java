@@ -2,8 +2,10 @@ package quoridor.controller;
 
 import quoridor.model.Game;
 import quoridor.model.GameMode;
+import quoridor.model.board.Position;
 import quoridor.view.QuoridorWindow;
 import quoridor.view.screens.ConfigPanel;
+import quoridor.view.screens.GamePanel;
 
 public class GameController {
 
@@ -51,9 +53,24 @@ public class GameController {
 
         this.game = new Game(gridSize, wallCount, gameMode);
 
+        /* The game page observes the game, to redraw the board after each move */
+        GamePanel gamePanel = quoridorWindow.getGamePanel();
+        game.addObserver(gamePanel);
+
         /* We give the game to the game page, then we show it */
-        quoridorWindow.getGamePanel().setGame(this.game);
+        gamePanel.setGame(this.game);
         quoridorWindow.showPage(QuoridorWindow.GAME);
+
+    }
+
+    public void onCellClicked(Position position) {
+        if (game == null) {
+            System.out.println("Erreur : aucune partie n'est associée au contrôleur !");
+            return;
+        }
+
+        boolean success = game.moveCurrentPlayer(position);
+        System.out.println("Déplacement vers " + position + " accepté ? " + success);
     }
 
 
