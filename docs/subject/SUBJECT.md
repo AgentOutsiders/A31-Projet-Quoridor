@@ -33,12 +33,12 @@ B - Les règles du jeu
 
 Elles sont disponibles :
 
-- en version textuelle : [ReglesDuJeu-Quoridor.pdf](reglesDuJeu/RegleDuJeu-Quoridor.pdf).
+- en version textuelle : [ReglesDuJeu-Quoridor.pdf](./reglesDuJeu/RegleDuJeu-Quoridor.pdf).
 - en vidéo : <https://www.youtube.com/watch?v=cwsZZGmiFQM>.
 
 Pour le mode de jeu Pacman :
 
-- en version textuelle : [ReglesDuJeu-QuoridorPacman.pdf](reglesDuJeu/RegleDuJeu-QuoridorPacman.pdf).
+- en version textuelle : [ReglesDuJeu-QuoridorPacman.pdf](./reglesDuJeu/RegleDuJeu-QuoridorPacman.pdf).
 - en vidéo : <https://www.youtube.com/watch?v=cwsZZGmiFQM&t=163s>
 
 Vous pouvez y **jouer en ligne** sur <https://playquor.org/>.
@@ -61,33 +61,33 @@ C - Les fonctionnalités de base
 
 Vous devez modéliser et implémenter les fonctionalités ci-dessous pour **2 joueurs humains**.
 
-### C1 - La génération de la grille
+### C1 - Génération de la grille
 
 - Niveau 1 : taille fixe de 9x9 (règles officielles)
 - Niveau 2 : taille paramétrable de 9x9 ou 11x11
 
-### C2 - Le choix du nombre de murs
+### C2 - Choix du nombre de murs
 
 - Niveau 1 : nombre fixe de 10 murs par joueur (règles officielles)
 - Niveau 2 : possibilité de choisir entre 8, 10 ou 12 murs par joueur
 
-### C3 - Le placement des murs
+### C3 - Placement des murs
 
 - Niveau 1 : N'importe où
 - Niveau 2 : Empêcher le placement d'un mur sur un autre mur
 - Niveau 3 : Empêcher le placement des murs qui bloquent l'adversaire
 
-### C4 - Le déplacement des pions
+### C4 - Déplacement des pions
 
 - Niveau 1 : Permettre tous les déplacements sur une case adjacente libre
 - Niveau 2 : Empêcher de franchir un mur
 - Niveau 3 : Gérer les sauts au-dessus d'un joueur
 
-### C5 - La détection de la fin de partie
+### C5 - Détection de la fin de partie
 
 Lorsqu'un joueur a atteint le bord opposé à son départ
 
-### C6 - La possibilité de recommencer une partie à la fin d'une partie
+### C6 - Possibilité de recommencer une partie à la fin d'une partie
 
 - Niveau 1 : Pas de possibilité de recommencer
 - Niveau 2 : Possibilité de recommencer sans redémarrer l'application
@@ -104,64 +104,65 @@ Proposer une version à **4 joueurs humains**. Il n'y a pas de joueur-ordinateur
 - Niveau 1 : Certaines fonctionalités de la version 2 joueurs fonctionnent
 - Niveau 2 : Toutes les fonctionnalités de la version 2 joueurs fonctionnent
 
-E - Joueur ordinateur
----------------------
-
-Proposer de **jouer contre l'ordinateur à 2 joueurs**.
-
-### E1 - Le choix de l'ordinateur entre déplacement et placement d'un mur
-
-- Niveau 1 : Choix aléatoire
-- Niveau 2 : Reproduire le choix du joueur humain
-- Niveau 3 : Choix basé sur une stratégie non aléatoire
-
-### E2 - Le placement des murs par l'ordinateur
-
-- Niveau 1 : Placement fixe (suite des emplacements codée "en dur")
-- Niveau 2 : Placement aléatoire
-- Niveau 3 : Placement en suivant une stratégie pour bloquer le joueur humain
-
-### E3 - Les déplacements de l'ordinateur
-
-- Niveau 1 : Déplacementsd aléatoires
-- Niveau 2 : Déplacement en essayant d'abord d'aller vers l'avant
-- Niveau 3 : Déplacement en se dirigeant vers le chemin le plus court
-
-F - Version Pacman
+E - Version Pacman
 ------------------
 
-### F1 - Placement des murs
+### E1 - Placement des murs
 
 - Niveau 1 : Placement fixe des 6 murs
 - Niveau 2 : Placement aléatoire des 6 murs
 - Niveau 3 : Placement manuel des 6 murs
 
-### F2 - Déplacement de Pacman
+### E2 - Déplacement de Pacman
 
 - Niveau 1 : Avance de 2 cases
 - Niveau 2 : Avance de 3 cases s'il mange une pac-gomme
 
-### F3 - Déplacement des fantômes
+### E3 - Déplacement des fantômes
 
 - Niveau 1 : Avance de 1 case tout le temps
 - Niveau 2 : Avance de 2 cases s'il a Pacman en ligne de mire
 
-### F4 - Manger un fantôme
+### E4 - Pacman mange un fantôme
 
 - Niveau 0 : Il ne se passe rien
 - Niveau 1 : Il est éliminé
 
-### F5 - Manger Pacman
+### E5 - Un fantôme mange Pacman
 
-- Niveau 0 : Il perd une vie
-- Niveau 1 : Il perd une vie et le plateau est ré-initialisé
-- Niveau 2 : Il perd une vie et le plateau est ré-initialisé sauf les Pac-gommes
+- Niveau 0 : Pacman perd une vie
+- Niveau 1 : Pacman perd une vie et le plateau est ré-initialisé
+- Niveau 2 : Pacman perd une vie et le plateau est ré-initialisé sauf les Pac-gommes
 
-### F6 - Condition de victoire
+### E6 - Condition de victoire
 
 - Niveau 0 : Pas de condition de victoire
 - Niveau 1 : Victoire de Pacman s'il mange toutes les Pac-gommes
 - Niveau 2 : Niveau 1 + Victoire des fantômes si Pacman n'a plus de vies
+
+Bonus - Joueur ordinateur
+-------------------------
+
+Proposer de **jouer en mode 2 joueurs, à 1 humain vs. 1 ordinateur**.
+
+### Bonus1 - Choix de l'ordinateur entre déplacement et placement d'un mur
+
+- Niveau 1 : Choix aléatoire
+- Niveau 2 : Reproduire le choix du joueur humain
+- Niveau 3 : Choix basé sur une stratégie non aléatoire
+
+### Bonus2 - Placement des murs par l'ordinateur
+
+- Niveau 1 : Placement fixe (suite des emplacements codée "en dur")
+- Niveau 2 : Placement aléatoire
+- Niveau 3 : Placement en suivant une stratégie pour bloquer le joueur humain
+
+### Bonus3 - Déplacements de l'ordinateur
+
+- Niveau 1 : Déplacementsd aléatoires
+- Niveau 2 : Déplacement en essayant d'abord d'aller vers l'avant
+- Niveau 3 : Déplacement en se dirigeant vers le chemin le plus court
+
 
 G - L'interface graphique
 -------------------------
@@ -188,7 +189,7 @@ Un bouton doit permettre de passer à l'écran de placement.
 
 Il doit être proposé lorsqu'on est en mode Pacman avec :
 
-- un placement fixe intial (celui des [règles du jeu](reglesDuJeu/RegleDuJeu-QuoridorPacman.pdf))
+- un placement fixe intial (celui des [règles du jeu](./reglesDuJeu/RegleDuJeu-QuoridorPacman.pdf))
 - un bouton pour générer un nouveau placement aléatoire (si niveau 2 de la [fonctionnalité F1](#f1-placement-des-murs))
 - une façon ergonomique de placer ses différents bateaux (si niveau 3 de la [fonctionnalité F1](#f1-placement-des-murs))
 
