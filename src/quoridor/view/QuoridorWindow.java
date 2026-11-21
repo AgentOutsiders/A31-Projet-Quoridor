@@ -16,13 +16,13 @@ public class QuoridorWindow extends JFrame {
     public static final String GAME = "Game";
 
     /* The layout that shows only one page at a time */
-    private CardLayout cardLayout;
+    private CardLayout m_cardLayout;
 
     /* The panel that holds all the pages */
-    private JPanel container;
-    private HomePanel homePanel;
-    private ConfigPanel configPanel;
-    private GamePanel gamePanel;
+    private JPanel m_container;
+    private HomePanel m_homePanel;
+    private ConfigPanel m_configPanel;
+    private GamePanel m_gamePanel;
 
     public QuoridorWindow(GameController controller) {
         /* For the title */
@@ -38,21 +38,21 @@ public class QuoridorWindow extends JFrame {
         setLocationRelativeTo(null);
 
         /* We create the stack of pages */
-        cardLayout = new CardLayout();
-        container = new JPanel(cardLayout);
+        m_cardLayout = new CardLayout();
+        m_container = new JPanel(m_cardLayout);
 
         /* We put the stack inside the window */
-        setContentPane(container);
+        setContentPane(m_container);
 
         /* We create each page */
-        homePanel = new HomePanel(controller);
-        configPanel = new ConfigPanel(controller);
-        gamePanel = new GamePanel(controller);
+        m_homePanel = new HomePanel(controller);
+        m_configPanel = new ConfigPanel(controller);
+        m_gamePanel = new GamePanel(controller);
 
         /* We add each page with its name */
-        container.add(homePanel, HOME);
-        container.add(configPanel, CONFIG);
-        container.add(gamePanel, GAME);
+        m_container.add(m_homePanel, HOME);
+        m_container.add(m_configPanel, CONFIG);
+        m_container.add(m_gamePanel, GAME);
 
         /* We show the home page first */
         showPage(HOME);
@@ -63,15 +63,15 @@ public class QuoridorWindow extends JFrame {
 
     /* To show the page with the given name */
     public void showPage(String name) {
-        cardLayout.show(container, name);
+        m_cardLayout.show(m_container, name);
     }
 
     public ConfigPanel getConfigPanel() {
-        return this.configPanel;
+        return this.m_configPanel;
     }
 
     /* To give the game page to the controller */
     public GamePanel getGamePanel() {
-        return this.gamePanel;
+        return this.m_gamePanel;
     }
 }

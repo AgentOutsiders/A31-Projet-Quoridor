@@ -1,34 +1,45 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam classFontStyle Bold
+skinparam style strictuml
 hide empty members
 
 !include model.puml
 !include view.puml
 !include controller.puml
 
+' Entry point: creates the controller and the window
 class Main {
     + {static} main(args : String[*])
 }
 
-Main ..> Game : <<instantiate>>
 Main ..> GameController : <<instantiate>>
 Main ..> QuoridorWindow : <<instantiate>>
 
-' La fenêtre principale implémente l'observateur du modèle
-QuoridorWindow ..|> GameObserver
+' Controller -> view: switches the pages and reads the configuration
+GameController "1" o--> "1\n -m_quoridorWindow" QuoridorWindow : controls >
+GameController ..> ConfigPanel : <<use>>
+GameController ..> GamePanel : <<use>>
 
-' Le contrôleur manipule le modèle et la fenêtre
-GameController "1" o--> "1\n - m_game" Game : modifies >
-GameController "1" o--> "1\n - m_quoridorWindow" QuoridorWindow : controls >
+' Controller -> model: creates the game after the configuration, then plays it
+GameController "1" o--> "0..1\n -m_game" Game : creates >
+GameController ..> GameMode : <<use>>
+GameController ..> Position : <<use>>
+GameController ..> Wall : <<use>>
 
-' La vue transmet les événements utilisateur au contrôleur
+' View -> model: the game screen observes the game, the board draws it
+GamePanel ..|> GameObserver
+GamePanel "1" o--> "0..1\n -m_game" Game : displays >
+BoardPanel "1" o--> "0..1\n -m_game" Game : draws >
+BoardPanel ..> Position : <<instantiate>>
+BoardPanel ..> Player : <<use>>
+ConfigPanel ..> GameMode : <<use>>
+
+' View -> controller: the view sends the user actions to the controller
 QuoridorWindow ..> GameController : <<use>>
-HomePanel ..> GameController : <<use>>
-ConfigPanel ..> GameController : <<use>>
-PlacementPanel ..> GameController : <<use>>
-GamePanel ..> GameController : <<use>>
-BoardPanel ..> GameController : <<use>>
-EndPanel ..> GameController : <<use>>
+HomePanel ..> GameController : <<call>>
+ConfigPanel ..> GameController : <<call>>
+GamePanel "1" o--> "1\n -m_controller" GameController : notifies >
+BoardPanel "1" o--> "1\n -m_controller" GameController : notifies >
 
 @enduml

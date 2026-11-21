@@ -1,4 +1,6 @@
 package quoridor.view.screens;
 
-public class PlacementPanel {
+import javax.swing.*;
+
+public class PlacementPanel extends JPanel {
 }

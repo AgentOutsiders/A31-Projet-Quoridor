@@ -1,4 +1,6 @@
 package quoridor.view.screens;
 
-public class EndPanel {
+import javax.swing.*;
+
+public class EndPanel extends JPanel {
 }

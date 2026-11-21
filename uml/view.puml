@@ -4,31 +4,14 @@ skinparam classFontStyle Bold
 skinparam style strictuml
 hide empty members
 
-class Main {
-    + {static} main(args : String[*])
-}
-
-package model {
-    class Game
-    enum GameMode <<enumerate>> {
-        CLASSIC
-        PACMAN
-    }
-}
-
-package controller {
-    class GameController {
-        + setWindow(quoridorWindow : QuoridorWindow)
-        + play()
-        + quit()
-        + goHome()
-        + startGame()
-    }
-}
+' Swing parent classes, declared once outside the view package
+class JFrame
+class JPanel
 
 package view {
 
-    class QuoridorWindow extends JFrame {
+    ' Main window: holds the screens and switches between them
+    class QuoridorWindow {
         + {static} HOME : String
         + {static} CONFIG : String
         + {static} GAME : String
@@ -38,38 +21,54 @@ package view {
         + getGamePanel() : GamePanel
     }
 
+    ' Colors shared by the whole view
+    class Theme {
+        + {static} getPawnColor(index : Integer) : Color
+    }
+
     package screens {
-        class HomePanel extends JPanel {
+
+        ' Home screen: play and quit buttons
+        class HomePanel {
             + <<create>> HomePanel(controller : GameController)
             - createButton(buttonName : String) : JButton
             - createLabel(labelName : String) : JLabel
         }
 
-        class ConfigPanel extends JPanel {
+        ' Configuration screen: game mode, grid size, walls, players, opponent
+        class ConfigPanel {
             + <<create>> ConfigPanel(controller : GameController)
-            + getGridSize() : Integer
-            + getWallCount() : Integer
-            + getGameMode() : GameMode
-            + getPlayerCount() : Integer
-            + isComputerOpponent() : Boolean
             - createSection(title : String, row : JPanel) : JPanel
             - createToggleButton(text : String) : JToggleButton
             - createButton(text : String) : JButton
             - updateColors(button : JToggleButton)
             - updateOptions()
+            + getGridSize() : Integer
+            + getWallCount() : Integer
+            + getGameMode() : GameMode
+            + getPlayerCount() : Integer
+            + isComputerOpponent() : Boolean
         }
 
-        class GamePanel extends JPanel {
+        ' Game screen: shows the board, redrawn after each move
+        class GamePanel {
             + <<create>> GamePanel(controller : GameController)
             + setGame(game : Game)
+            + onBoardUpdated()
+            + onGameOver(winnerName : String)
         }
 
-        class PlacementPanel extends JPanel
-        class EndPanel extends JPanel
+        ' Wall placement screen (to be completed)
+        class PlacementPanel
+
+        ' End of game screen (to be completed)
+        class EndPanel
     }
 
     package components {
-        class BoardPanel extends JPanel {
+
+        ' Draws the board and converts the clicks into cells
+        class BoardPanel {
             - {static} CELL : Integer
             - {static} GAP : Integer
             - {static} PAWN : Integer
@@ -79,7 +78,7 @@ package view {
             - {static} FRAME_ARC : Integer
             - {static} BOARD_ARC : Integer
             - {static} CELL_ARC : Integer
-            + <<create>> BoardPanel()
+            + <<create>> BoardPanel(controller : GameController)
             + setGame(game : Game)
             - getGridPixels() : Integer
             # paintComponent(g : Graphics)
@@ -87,40 +86,31 @@ package view {
             - drawBoard(g2 : Graphics2D)
             - drawCells(g2 : Graphics2D)
             - drawPawns(g2 : Graphics2D)
+            - getCellAt(pixelX : Integer, pixelY : Integer) : Position
         }
 
-        class PlayerInfoPanel extends JPanel
+        ' Shows the information of one player (to be completed)
+        class PlayerInfoPanel
     }
 }
 
-' Creation of the application
-Main .> GameController : <<instantiate>>
-Main .> QuoridorWindow : <<instantiate>>
+' Inheritance from the Swing classes
+QuoridorWindow --|> JFrame
+HomePanel --|> JPanel
+ConfigPanel --|> JPanel
+GamePanel --|> JPanel
+BoardPanel --|> JPanel
+PlayerInfoPanel --|> JPanel
+PlacementPanel --|> JPanel
+EndPanel --|> JPanel
 
-' Controller
-GameController "1" o--> "1\n -quoridorWindow" QuoridorWindow : controls >
-GameController "1" o--> "0..1\n -game" Game : plays >
-GameController .> GameMode : <<use>>
+' Window and its screens
+QuoridorWindow "1" *--> "1\n -m_homePanel" HomePanel : contains >
+QuoridorWindow "1" *--> "1\n -m_configPanel" ConfigPanel : contains >
+QuoridorWindow "1" *--> "1\n -m_gamePanel" GamePanel : contains >
 
-' Window and its pages
-QuoridorWindow "1" *--> "1\n -homePanel" HomePanel : contains >
-QuoridorWindow "1" *--> "1\n -configPanel" ConfigPanel : contains >
-QuoridorWindow "1" *--> "1\n -gamePanel" GamePanel : contains >
-QuoridorWindow "1" *--> "1\n -placementPanel" PlacementPanel : contains >
-QuoridorWindow "1" *--> "1\n -endPanel" EndPanel : contains >
-QuoridorWindow .> GameController : <<use>>
-
-' Pages
-HomePanel .> GameController : <<call>>
-ConfigPanel .> GameController : <<call>>
-ConfigPanel .> GameMode : <<use>>
-GamePanel "1" o--> "1\n -controller" GameController : notifies >
-GamePanel "1" o--> "0..1\n -game" Game : displays >
-GamePanel "1" *--> "1\n -boardPanel" BoardPanel : contains >
-GamePanel "1" *--> "2..4\n -playerInfos" PlayerInfoPanel : contains >
-PlacementPanel "1" *--> "1\n -boardPanel" BoardPanel : contains >
-
-' Board
-BoardPanel "1" o--> "0..1\n -game" Game : draws >
+' Screens and their components
+GamePanel "1" *--> "1\n -m_boardPanel" BoardPanel : contains >
+BoardPanel .> Theme : <<use>>
 
 @enduml

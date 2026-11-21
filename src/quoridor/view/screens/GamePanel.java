@@ -14,36 +14,36 @@ public class GamePanel extends JPanel implements GameObserver {
     private static final Color BACKGROUND = new Color(0xEF, 0xE4, 0xD2);
 
     /* The controller, to send the player's clicks */
-    private GameController controller;
+    private GameController m_controller;
 
     /* The current game, given when the player starts a game */
-    private Game game;
+    private Game m_game;
 
     /* The board drawn in the middle of the page */
-    private BoardPanel boardPanel;
+    private BoardPanel m_boardPanel;
 
     public GamePanel(GameController controller) {
-        this.controller = controller;
+        this.m_controller = controller;
 
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND);
 
-        boardPanel = new BoardPanel(this.controller);
-        add(boardPanel);
+        m_boardPanel = new BoardPanel(this.m_controller);
+        add(m_boardPanel);
     }
 
     /* To give the game to the page after its creation */
     public void setGame(Game game) {
-        this.game = game;
+        this.m_game = game;
 
         /* The board needs the game to draw it */
-        boardPanel.setGame(game);
+        m_boardPanel.setGame(game);
     }
 
     /* Called by the model after each valid move: we redraw the board */
     @Override
     public void onBoardUpdated() {
-        boardPanel.repaint();
+        m_boardPanel.repaint();
     }
 
     /* Called by the model when a player reaches the opposite side */

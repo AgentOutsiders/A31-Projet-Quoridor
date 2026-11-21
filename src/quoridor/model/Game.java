@@ -183,7 +183,7 @@ public class Game
 
     private boolean checkVictory(Player player)
     {
-        return player.getPosition().getY() == player.getGoalCoordinate();
+        return player.hasReachedGoal();
     }
 
     private void nextTurn()

@@ -6,7 +6,7 @@ hide empty members
 
 package controller {
 
-    ' Receives the view actions, updates the model and switches pages
+    ' Receives the view actions, creates and updates the game, and switches pages
     class GameController {
         + setWindow(quoridorWindow : QuoridorWindow)
         + play()

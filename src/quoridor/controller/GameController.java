@@ -10,34 +10,34 @@ import quoridor.view.screens.GamePanel;
 public class GameController {
 
     /* The window, to change the displayed page */
-    private QuoridorWindow quoridorWindow;
+    private QuoridorWindow m_quoridorWindow;
 
     /* The current game, created when the player starts a game */
-    private Game game;
+    private Game m_game;
 
     /* To give the window to the controller after its creation */
     public void setWindow(QuoridorWindow quoridorWindow) {
-        this.quoridorWindow = quoridorWindow;
+        this.m_quoridorWindow = quoridorWindow;
     }
 
     /* Called when the player clicks on "Jouer" */
     public void play() {
-        quoridorWindow.showPage(QuoridorWindow.CONFIG);
+        m_quoridorWindow.showPage(QuoridorWindow.CONFIG);
     }
 
     /* Called when the player clicks on "Quitter" */
     public void quit() {
-        quoridorWindow.dispose();
+        m_quoridorWindow.dispose();
     }
 
     /* Called when the player clicks on "Retour" in the config screen */
     public void goHome() {
-        quoridorWindow.showPage(QuoridorWindow.HOME);
+        m_quoridorWindow.showPage(QuoridorWindow.HOME);
     }
 
     /* Called when the player clicks on "Lancer la partie" */
     public void startGame() {
-        ConfigPanel configPanel = quoridorWindow.getConfigPanel();
+        ConfigPanel configPanel = m_quoridorWindow.getConfigPanel();
 
         GameMode gameMode = configPanel.getGameMode();
         int gridSize = configPanel.getGridSize();
@@ -51,25 +51,25 @@ public class GameController {
         System.out.println("Nombre de joueurs : " + playerCount);
         System.out.println("Adversaire IA : " + computerOpponent);
 
-        this.game = new Game(gridSize, wallCount, gameMode, playerCount, computerOpponent);
+        this.m_game = new Game(gridSize, wallCount, gameMode, playerCount, computerOpponent);
 
         /* The game page observes the game, to redraw the board after each move */
-        GamePanel gamePanel = quoridorWindow.getGamePanel();
-        game.addObserver(gamePanel);
+        GamePanel gamePanel = m_quoridorWindow.getGamePanel();
+        m_game.addObserver(gamePanel);
 
         /* We give the game to the game page, then we show it */
-        gamePanel.setGame(this.game);
-        quoridorWindow.showPage(QuoridorWindow.GAME);
+        gamePanel.setGame(this.m_game);
+        m_quoridorWindow.showPage(QuoridorWindow.GAME);
 
     }
 
     public void onCellClicked(Position position) {
-        if (game == null) {
+        if (m_game == null) {
             System.out.println("Erreur : aucune partie n'est associée au contrôleur !");
             return;
         }
 
-        boolean success = game.moveCurrentPlayer(position);
+        boolean success = m_game.moveCurrentPlayer(position);
         System.out.println("Déplacement vers " + position + " accepté ? " + success);
     }
 
