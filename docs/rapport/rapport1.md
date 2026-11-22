@@ -13,7 +13,7 @@ Nous nous sommes réparti le travail par couche : Alexis s'occupe du modèle, c'
 
 À ce stade, une partie peut être configurée puis jouée, à deux ou à quatre joueurs : un clic sur une case déplace le pion du joueur actif, et la victoire est détectée, même si elle n'est pour l'instant affichée que dans la console. Le choix de l'ordinateur comme adversaire est transmis au modèle, mais aucun joueur-ordinateur n'est encore créé. Il manque encore la pose des murs par un clic, les fiches des joueurs, l'écran de fin de partie et le mode Pacman.
 
-Pour chacun de nous deux, ce rapport retrace l'évolution de la conception jour par jour, avec l'état du diagramme de classes à chaque étape.
+Ce rapport retrace donc l'évolution de la conception avec l'état du diagramme de classes.
 
 
 
@@ -53,11 +53,11 @@ Enfin, l'énumération GameMode (CLASSIC ou PACMAN) est transmise à la partie d
 
 > 09/11/2026 :  Mise en place du projet
 
-La première séance a été consacrée à l'organisation du dépôt, avant toute conception. Nous avons créé le groupe GitLab `peignier-danree`, forké le dépôt du sujet dans ce groupe et ajouté l'enseignant comme **Reporter**. Le dépôt est privé, pour que les autres équipes ne puissent pas consulter notre code.
+La première séance a été consacrée à l'organisation du dépôt, avant toute conception. Nous avons créé le groupe GitLab `peignier-danree`, forké le dépôt du sujet dans ce groupe et ajouté l'enseignant comme **Reporter**. Le dépôt est privé, pour que les autres équipes ne puissent pas le consulter.
 
-Nous avons ensuite mis en place une structure commune avant d'écrire du code, pour éviter que chacun organise ses fichiers différemment. Le code source est placé dans `src/quoridor`, avec dès le départ les trois packages `model`, `view` et `controller`, pour imposer la séparation MVC. Les diagrammes PlantUML sont rangés dans `uml/` et la documentation dans `docs/`. Les fichiers fournis avec le sujet (énoncé, images, règles du jeu) ont été déplacés dans `docs/subject/`, pour garder la racine du projet lisible tout en conservant le sujet à portée de main.
+Nous avons ensuite mis en place une structure commune avant d'écrire du code, pour éviter que chacun organise ses fichiers différemment. Le code source est placé dans `src/quoridor`, avec dès le départ les trois packages `model`, `view` et `controller`, pour imposer la séparation MVC. Les diagrammes PlantUML sont rangés dans `uml/` et la documentation dans `docs/`. Les fichiers fournis avec le sujet ont été déplacés dans `docs/subject/`, pour garder la racine du projet lisible tout en conservant le sujet à portée de main.
 
-Nous avons enfin ajouté un fichier `.gitignore` qui exclut les fichiers compilés (`out/`, `*.class`) et la configuration personnelle d'IntelliJ (`.idea/`, `*.iml`). Ces fichiers sont propres à chaque machine : les partager aurait provoqué des conflits à chaque compilation et des chemins invalides chez l'autre membre du binôme. Nous avons également choisi d'écrire le code, les commentaires et les messages de commit en anglais, pour rester cohérents tout au long du projet.
+Nous avons enfin ajouté un fichier `.gitignore` qui exclut les fichiers compilés et la configuration personnelle d'IntelliJ. Ces fichiers sont propres à chaque machine : les partager aurait provoqué des conflits à chaque compilation et des chemins invalides chez l'autre membre du binôme. Nous avons également choisi d'écrire le code, les commentaires et les messages de commit en anglais, pour rester cohérents tout au long du projet.
 
 
 > 10/11/2026 : Organisation de l'UML et première version de la vue
@@ -72,6 +72,8 @@ Chaque écran demandé par le sujet est une classe à part, qui hérite de `JPan
 
 Ce jour-là, nous avons aussi exploré plusieurs directions artistiques pour l'interface, avant de retenir une ambiance « bois et feutre » inspirée du plateau de jeu réel.
 
+**État du diagramme le 10/11/2026 :**
+
 ![img_4.png](img_4.png)
 
 
@@ -85,6 +87,8 @@ Plutôt que de régler le style de chaque bouton un par un, j'ai écrit une mét
 Les couleurs de la page sont définies dans des constantes (`BACKGROUND`, `PRIMARY`, `PRIMARY_HOVER`) placées en haut de la classe, pour pouvoir changer la palette à un seul endroit. J'ai d'abord essayé une palette bleue, avant de revenir le lendemain à l'ambiance bois retenue au départ.
 
 J'ai enfin mis à jour le diagramme de classes pour qu'il corresponde au code : ajout des constructeurs et des méthodes de `HomePanel`. J'ai aussi ajouté la classe `Main` dans le diagramme global, car elle n'appartient à aucun des trois packages : elle se trouve à la racine du projet et crée la fenêtre au lancement de l'application. Elle est reliée à la fenêtre par une dépendance de création, et non par une composition, car elle ne garde pas de référence vers la fenêtre.
+
+**État du diagramme le 11/11/2026 :**
 
 ![img_5.png](img_5.png)
 
@@ -105,6 +109,8 @@ Certaines combinaisons d'options n'ont pas de sens, et doivent donc être imposs
 
 Enfin, je suis passé à la palette « bois et feutre » choisie au départ, et j'ai ajouté les boutons « Retour » et « Lancer la partie », reliés aux méthodes `goHome()` et `startGame()` du contrôleur.
 
+**État du diagramme le 12/11/2026 :**
+
 ![img_6.png](img_6.png)
 
 
@@ -119,6 +125,8 @@ Le contrôleur ne connaît que la fenêtre, et non les pages qu'elle contient. P
 J'ai ensuite créé la page de jeu, `GamePanel`, et la constante `GAME` correspondante. Cette page a besoin de la partie pour l'afficher, mais elle est créée au lancement de l'application, alors que la partie n'existe qu'après la validation de la configuration. La partie ne peut donc pas être passée au constructeur de la page. Comme pour la fenêtre et le contrôleur, je l'ai transmise après coup, grâce à une méthode `setGame`, que le contrôleur appelle juste avant d'afficher l'écran de jeu. J'ai vérifié ce fonctionnement en affichant temporairement la taille du plateau sur la page.
 
 Enfin, j'ai commencé le composant `BoardPanel`, qui dessine le plateau. Il reçoit lui aussi la partie par une méthode `setGame`, et lit la taille de la grille directement dans le modèle, avec `game.getBoard().getSize()`, et non dans l'écran de configuration. Une fois la partie créée, c'est en effet le modèle qui fait référence : l'écran de configuration n'est qu'un formulaire, utilisé une seule fois pour créer la partie. Le plateau ne dépend ainsi que du modèle, ce qui lui permettra d'être réutilisé sur l'écran de placement du mode Pacman.
+
+**État du diagramme le 17/11/2026 :**
 
 ![img_7.png](img_7.png)
 
@@ -137,6 +145,8 @@ Pour les pions, le plateau parcourt la liste des joueurs du modèle et dessine u
 
 Enfin, l'écran de jeu affiche maintenant ce plateau à la place du texte de test, et lui transmet la partie dans sa propre méthode `setGame`. La prochaine étape sera de détecter les clics sur le plateau, puis de brancher l'écran de jeu sur le modèle grâce à l'interface `GameObserver`, pour qu'il se redessine après chaque coup.
 
+**État du diagramme le 18/11/2026 :**
+
 ![img_8.png](img_8.png)
 
 
@@ -154,7 +164,11 @@ Avec Alexis, nous avons aussi adopté une convention commune pour les attributs 
 
 J'ai également aligné le diagramme de classes sur le code. Chaque fichier ne décrit plus que son propre package, et toutes les relations entre packages sont regroupées dans le diagramme global. J'ai retiré les relations qui n'existaient pas encore dans le code, par exemple les fiches des joueurs contenues dans l'écran de jeu : elles reviendront au rendu 2, lorsque ces classes seront réalisées.
 
+Avec Alexis, nous avons choisi de ne pas représenter les classes de la bibliothèque Java comme `Color`, `Graphics2D` ou `JToggleButton`, pour garder le diagramme lisible. Seules `JFrame` et `JPanel` y figurent car elles montrent de quelles classes Swing héritent nos fenêtres et nos pages.
+
 Enfin, en testant la partie à quatre joueurs, j'ai remarqué que les joueurs 3 et 4 ne pouvaient pas gagner. La méthode `checkVictory` ne testait que l'axe vertical, alors que ces deux joueurs doivent atteindre une colonne, et non une ligne. Je l'ai corrigée, en accord avec Alexis, en utilisant la méthode `hasReachedGoal()` du joueur, qui tient compte de son axe d'arrivée.
+
+**État du diagramme le 21/11/2026 :**
 
 ![img_9.png](img_9.png)
 
