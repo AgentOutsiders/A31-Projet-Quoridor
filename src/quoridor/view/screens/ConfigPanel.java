@@ -22,93 +22,93 @@ public class ConfigPanel extends JPanel {
     private static final Color ACTION_HOVER = new Color(0x5A, 0x41, 0x30);
 
     /* Game mode choice */
-    private JToggleButton classicButton;
-    private JToggleButton pacmanButton;
+    private JToggleButton m_classicButton;
+    private JToggleButton m_pacmanButton;
 
     /* Grid size choice */
-    private JToggleButton grid9Button;
-    private JToggleButton grid11Button;
+    private JToggleButton m_grid9Button;
+    private JToggleButton m_grid11Button;
 
     /* Number of walls choice */
-    private JToggleButton wall8Button;
-    private JToggleButton wall10Button;
-    private JToggleButton wall12Button;
+    private JToggleButton m_wall8Button;
+    private JToggleButton m_wall10Button;
+    private JToggleButton m_wall12Button;
 
     /* Number of players choice */
-    private JToggleButton player2Button;
-    private JToggleButton player4Button;
+    private JToggleButton m_player2Button;
+    private JToggleButton m_player4Button;
 
     /* Opponent choice */
-    private JToggleButton humanButton;
-    private JToggleButton computerButton;
+    private JToggleButton m_humanButton;
+    private JToggleButton m_computerButton;
 
     /* Groups of buttons, to clear the selection in Pacman mode */
-    private ButtonGroup wallGroup;
-    private ButtonGroup playerGroup;
-    private ButtonGroup opponentGroup;
+    private ButtonGroup m_wallGroup;
+    private ButtonGroup m_playerGroup;
+    private ButtonGroup m_opponentGroup;
 
     /* Action buttons */
-    private JButton startButton;
-    private JButton backButton;
+    private JButton m_startButton;
+    private JButton m_backButton;
 
     public ConfigPanel(GameController controller) {
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND);
 
         /* We create the buttons */
-        classicButton = createToggleButton("Classique");
-        pacmanButton = createToggleButton("Pacman");
+        m_classicButton = createToggleButton("Classique");
+        m_pacmanButton = createToggleButton("Pacman");
 
-        grid9Button = createToggleButton("9 x 9");
-        grid11Button = createToggleButton("11 x 11");
+        m_grid9Button = createToggleButton("9 x 9");
+        m_grid11Button = createToggleButton("11 x 11");
 
-        wall8Button = createToggleButton("8");
-        wall10Button = createToggleButton("10");
-        wall12Button = createToggleButton("12");
+        m_wall8Button = createToggleButton("8");
+        m_wall10Button = createToggleButton("10");
+        m_wall12Button = createToggleButton("12");
 
-        player2Button = createToggleButton("2");
-        player4Button = createToggleButton("4");
+        m_player2Button = createToggleButton("2");
+        m_player4Button = createToggleButton("4");
 
-        humanButton = createToggleButton("Humain");
-        computerButton = createToggleButton("Ordinateur");
+        m_humanButton = createToggleButton("Humain");
+        m_computerButton = createToggleButton("Ordinateur");
 
-        startButton = createButton("Lancer la partie");
-        backButton = createButton("Retour");
+        m_startButton = createButton("Lancer la partie");
+        m_backButton = createButton("Retour");
 
         /* Only one button can be selected in each group */
         ButtonGroup modeGroup = new ButtonGroup();
-        modeGroup.add(classicButton);
-        modeGroup.add(pacmanButton);
+        modeGroup.add(m_classicButton);
+        modeGroup.add(m_pacmanButton);
 
         ButtonGroup gridGroup = new ButtonGroup();
-        gridGroup.add(grid9Button);
-        gridGroup.add(grid11Button);
+        gridGroup.add(m_grid9Button);
+        gridGroup.add(m_grid11Button);
 
-        wallGroup = new ButtonGroup();
-        wallGroup.add(wall8Button);
-        wallGroup.add(wall10Button);
-        wallGroup.add(wall12Button);
+        m_wallGroup = new ButtonGroup();
+        m_wallGroup.add(m_wall8Button);
+        m_wallGroup.add(m_wall10Button);
+        m_wallGroup.add(m_wall12Button);
 
-        playerGroup = new ButtonGroup();
-        playerGroup.add(player2Button);
-        playerGroup.add(player4Button);
+        m_playerGroup = new ButtonGroup();
+        m_playerGroup.add(m_player2Button);
+        m_playerGroup.add(m_player4Button);
 
-        opponentGroup = new ButtonGroup();
-        opponentGroup.add(humanButton);
-        opponentGroup.add(computerButton);
+        m_opponentGroup = new ButtonGroup();
+        m_opponentGroup.add(m_humanButton);
+        m_opponentGroup.add(m_computerButton);
 
         /* Default choices */
-        classicButton.setSelected(true);
-        grid9Button.setSelected(true);
-        wall10Button.setSelected(true);
-        player2Button.setSelected(true);
-        humanButton.setSelected(true);
+        m_classicButton.setSelected(true);
+        m_grid9Button.setSelected(true);
+        m_wall10Button.setSelected(true);
+        m_player2Button.setSelected(true);
+        m_humanButton.setSelected(true);
 
         /* When the mode or the number of players changes, we update the other options */
-        classicButton.addActionListener(e -> updateOptions());
-        pacmanButton.addActionListener(e -> updateOptions());
-        player2Button.addActionListener(e -> updateOptions());
-        player4Button.addActionListener(e -> updateOptions());
+        m_classicButton.addActionListener(e -> updateOptions());
+        m_pacmanButton.addActionListener(e -> updateOptions());
+        m_player2Button.addActionListener(e -> updateOptions());
+        m_player4Button.addActionListener(e -> updateOptions());
 
         /* We apply the rules once at the start */
         updateOptions();
@@ -116,34 +116,34 @@ public class ConfigPanel extends JPanel {
         /* The rows of buttons: one column per button, all the same width */
         JPanel modeRow = new JPanel(new GridLayout(1, 2, 8, 0));
         modeRow.setOpaque(false);
-        modeRow.add(classicButton);
-        modeRow.add(pacmanButton);
+        modeRow.add(m_classicButton);
+        modeRow.add(m_pacmanButton);
 
         JPanel gridRow = new JPanel(new GridLayout(1, 2, 8, 0));
         gridRow.setOpaque(false);
-        gridRow.add(grid9Button);
-        gridRow.add(grid11Button);
+        gridRow.add(m_grid9Button);
+        gridRow.add(m_grid11Button);
 
         JPanel wallRow = new JPanel(new GridLayout(1, 3, 8, 0));
         wallRow.setOpaque(false);
-        wallRow.add(wall8Button);
-        wallRow.add(wall10Button);
-        wallRow.add(wall12Button);
+        wallRow.add(m_wall8Button);
+        wallRow.add(m_wall10Button);
+        wallRow.add(m_wall12Button);
 
         JPanel playerRow = new JPanel(new GridLayout(1, 2, 8, 0));
         playerRow.setOpaque(false);
-        playerRow.add(player2Button);
-        playerRow.add(player4Button);
+        playerRow.add(m_player2Button);
+        playerRow.add(m_player4Button);
 
         JPanel opponentRow = new JPanel(new GridLayout(1, 2, 8, 0));
         opponentRow.setOpaque(false);
-        opponentRow.add(humanButton);
-        opponentRow.add(computerButton);
+        opponentRow.add(m_humanButton);
+        opponentRow.add(m_computerButton);
 
         JPanel actionRow = new JPanel(new GridLayout(1, 2, 8, 0));
         actionRow.setOpaque(false);
-        actionRow.add(backButton);
-        actionRow.add(startButton);
+        actionRow.add(m_backButton);
+        actionRow.add(m_startButton);
 
         /* We place the sections on the page, one per line */
         GridBagConstraints constraints = new GridBagConstraints();
@@ -172,8 +172,8 @@ public class ConfigPanel extends JPanel {
         add(actionRow, constraints);
 
         /* Button actions */
-        startButton.addActionListener(e -> controller.startGame());
-        backButton.addActionListener(e -> controller.goHome());
+        m_startButton.addActionListener(e -> controller.startGame());
+        m_backButton.addActionListener(e -> controller.goHome());
     }
 
     /* Creates a section: a title above a row of buttons */
@@ -271,73 +271,73 @@ public class ConfigPanel extends JPanel {
 
     /* Enables, disables or forces the options depending on the mode and the number of players */
     private void updateOptions() {
-        boolean pacman = pacmanButton.isSelected();
+        boolean pacman = m_pacmanButton.isSelected();
 
         if (pacman) {
             /* Pacman: 9 x 9 grid, and no walls, players or opponent choice */
-            grid9Button.setSelected(true);
-            wallGroup.clearSelection();
-            playerGroup.clearSelection();
-            opponentGroup.clearSelection();
+            m_grid9Button.setSelected(true);
+            m_wallGroup.clearSelection();
+            m_playerGroup.clearSelection();
+            m_opponentGroup.clearSelection();
         } else {
             /* Classic: back to the default choices if nothing is selected */
-            if (wallGroup.getSelection() == null) {
-                wall10Button.setSelected(true);
+            if (m_wallGroup.getSelection() == null) {
+                m_wall10Button.setSelected(true);
             }
-            if (playerGroup.getSelection() == null) {
-                player2Button.setSelected(true);
+            if (m_playerGroup.getSelection() == null) {
+                m_player2Button.setSelected(true);
             }
-            if (opponentGroup.getSelection() == null) {
-                humanButton.setSelected(true);
+            if (m_opponentGroup.getSelection() == null) {
+                m_humanButton.setSelected(true);
             }
         }
 
         /* No computer with 4 players */
-        boolean fourPlayers = player4Button.isSelected();
+        boolean fourPlayers = m_player4Button.isSelected();
         if (fourPlayers) {
-            humanButton.setSelected(true);
+            m_humanButton.setSelected(true);
         }
 
         /* Grid, walls and players: only in classic mode */
-        grid11Button.setEnabled(!pacman);
-        wall8Button.setEnabled(!pacman);
-        wall10Button.setEnabled(!pacman);
-        wall12Button.setEnabled(!pacman);
-        player2Button.setEnabled(!pacman);
-        player4Button.setEnabled(!pacman);
+        m_grid11Button.setEnabled(!pacman);
+        m_wall8Button.setEnabled(!pacman);
+        m_wall10Button.setEnabled(!pacman);
+        m_wall12Button.setEnabled(!pacman);
+        m_player2Button.setEnabled(!pacman);
+        m_player4Button.setEnabled(!pacman);
 
         /* Opponent: only in classic mode, computer only with 2 players */
-        humanButton.setEnabled(!pacman);
-        computerButton.setEnabled(!pacman && !fourPlayers);
+        m_humanButton.setEnabled(!pacman);
+        m_computerButton.setEnabled(!pacman && !fourPlayers);
 
         /* We refresh the colors */
-        updateColors(grid9Button);
-        updateColors(grid11Button);
-        updateColors(wall8Button);
-        updateColors(wall10Button);
-        updateColors(wall12Button);
-        updateColors(player2Button);
-        updateColors(player4Button);
-        updateColors(humanButton);
-        updateColors(computerButton);
+        updateColors(m_grid9Button);
+        updateColors(m_grid11Button);
+        updateColors(m_wall8Button);
+        updateColors(m_wall10Button);
+        updateColors(m_wall12Button);
+        updateColors(m_player2Button);
+        updateColors(m_player4Button);
+        updateColors(m_humanButton);
+        updateColors(m_computerButton);
     }
 
     public int getGridSize()
     {
-        if(grid9Button.isSelected()) {
+        if(m_grid9Button.isSelected()) {
             return 9;
         }
         return 11;
     }
 
     public int getWallCount() {
-        if(pacmanButton.isSelected()) {
+        if(m_pacmanButton.isSelected()) {
             return 0;
         }
         else {
-            if(wall8Button.isSelected()) {
+            if(m_wall8Button.isSelected()) {
                 return 8;
-            } else if (wall10Button.isSelected()) {
+            } else if (m_wall10Button.isSelected()) {
                 return 10;
             }
             return 12;
@@ -345,18 +345,18 @@ public class ConfigPanel extends JPanel {
     }
 
     public GameMode getGameMode() {
-        if(pacmanButton.isSelected()) {
+        if(m_pacmanButton.isSelected()) {
             return GameMode.PACMAN;
         }
         return GameMode.CLASSIC;
     }
 
     public int getPlayerCount() {
-        if(pacmanButton.isSelected()) {
+        if(m_pacmanButton.isSelected()) {
             return 4;
         }
         else {
-            if(player2Button.isSelected()) {
+            if(m_player2Button.isSelected()) {
                 return 2;
             }
             return 4;
@@ -364,6 +364,6 @@ public class ConfigPanel extends JPanel {
     }
 
     public boolean isComputerOpponent() {
-        return computerButton.isSelected();
+        return m_computerButton.isSelected();
     }
 }

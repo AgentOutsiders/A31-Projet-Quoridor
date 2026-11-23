@@ -11,9 +11,9 @@ Ce projet consiste à réaliser le jeu de société Quoridor en Java, avec une i
 
 Nous nous sommes réparti le travail par couche : Alexis s'occupe du modèle, c'est-à-dire des données et des règles du jeu, et Maxime s'occupe de la vue et du contrôleur, c'est-à-dire de l'interface et du lien entre l'interface et le modèle. Chacun travaille sur sa propre branche Git (`alexis` et `maxime`), et nous récupérons régulièrement le travail de l'autre pour vérifier que les deux parties fonctionnent ensemble.
 
-À ce stade, l'interface permet de passer de l'écran d'accueil à l'écran de configuration, puis de lancer une partie dont le plateau et les pions sont affichés. Les règles du mode classique à deux joueurs sont écrites dans le modèle, mais ne sont pas encore reliées à l'interface : on ne peut pas encore jouer de coup.
+À ce stade, une partie peut être configurée puis jouée, à deux ou à quatre joueurs : un clic sur une case déplace le pion du joueur actif, et la victoire est détectée, même si elle n'est pour l'instant affichée que dans la console. Le choix de l'ordinateur comme adversaire est transmis au modèle, mais aucun joueur-ordinateur n'est encore créé. Il manque encore la pose des murs par un clic, les fiches des joueurs, l'écran de fin de partie et le mode Pacman.
 
-Pour chacun de nous deux, ce rapport retrace l'évolution de la conception jour par jour, avec l'état du diagramme de classes à chaque étape.
+Ce rapport retrace donc l'évolution de la conception avec l'état du diagramme de classes.
 
 
 
@@ -23,7 +23,7 @@ Le code est découpé en trois packages, conformément au patron MVC vu en cours
 
 Le package `model` contient les données et les règles du jeu. Il ne dépend pas de l'interface : il pourrait fonctionner avec une autre interface que Swing sans être modifié. Le package `view` contient la fenêtre et les pages Swing : il affiche l'état du jeu et transmet les actions de l'utilisateur. Le package `controller` fait le lien entre les deux : il reçoit les actions de la vue, modifie le modèle en conséquence et choisit l'écran à afficher.
 
-Les dépendances vont toujours dans le même sens. La vue connaît le contrôleur, pour le prévenir d'un clic, et peut lire le modèle pour l'afficher, mais ne le modifie jamais. Le contrôleur connaît la vue, pour changer d'écran, et le modèle, pour le modifier. Le modèle ne connaît ni la vue ni le contrôleur : il préviendra ses observateurs quand son état change, grâce au patron Observer.
+Les dépendances vont toujours dans le même sens. La vue connaît le contrôleur, pour le prévenir d'un clic, et peut lire le modèle pour l'afficher, mais ne le modifie jamais. Le contrôleur connaît la vue, pour changer d'écran, et le modèle, pour le modifier. Le modèle ne connaît ni la vue ni le contrôleur : il prévient ses observateurs quand son état change, grâce au patron Observer.
 
 La classe `Main`, à la racine du projet, assemble l'application : elle crée le contrôleur, puis la fenêtre, et relie les deux. La partie, elle, n'est créée qu'au moment où le joueur valide la configuration.
 
@@ -31,9 +31,21 @@ La classe `Main`, à la racine du projet, assemble l'application : elle crée le
 
 ### 3. Les choix de conception d'Alexis
 
-<!-- Partie rédigée par Alexis -->
-Pour représenter les murs, nous avons fait le choix d'utiliser un Set d'objets Wall plutôt que des tableaux pour representer les cases. Ce choix présente deux avantages majeurs : il évite d'allouer un tableau pour le remplir de Null et evite les erreurs de désynchronisation des tableaux (où il faudrait mettre à jour manuellement deux case à chaque pose de mur) et il s'adapte à la tailles de la grille sans plus de code. Le seul défaut est le parcour du set pour verifier si un mur est present ou non lors d'un deplacement.
-<br>
+Le plateau repose sur deux petites classes. Position représente les coordonnées (x, y) d'une case. Ses attributs ne peuvent plus changer après sa création : déplacer un pion revient à lui donner une nouvelle position. Nous y avons redéfini equals et hashCode, pour que deux positions de mêmes coordonnées soient considérées comme égales, ce qui est indispensable pour les ranger dans un Set ou une Map. Un mur, Wall, est simplement un point d'ancrage, de type Position, associé à une orientation, horizontale ou verticale. C'est le mur lui-même qui sait s'il bloque le passage entre deux cases voisines (blocksPassage) et s'il chevauche ou croise un autre mur (overlapsWith) : chaque règle est ainsi écrite dans la classe qui possède les données nécessaires.
+
+Pour représenter les murs, nous avons fait le choix d'utiliser un Set d'objets Wall plutôt que des tableaux pour représenter les cases. Ce choix présente deux avantages majeurs : il évite d'allouer un tableau pour le remplir de null et évite les erreurs de désynchronisation des tableaux (où il faudrait mettre à jour manuellement deux cases à chaque pose de mur) et il s'adapte à la taille de la grille sans plus de code. Le seul défaut est le parcours du set pour vérifier si un mur est présent ou non lors d'un déplacement.
+
+La classe Board regroupe ces murs et les règles de déplacement. Pour savoir si un pion peut passer d'une case à une autre, la méthode canPass vérifie que les deux cases sont dans la grille, qu'elles sont voisines, puis qu'aucun mur du set ne bloque le passage. Avant d'ajouter un mur, canPlaceWall vérifie que son ancrage est bien à l'intérieur de la grille et qu'il ne chevauche aucun mur existant.
+
+Les règles interdisent aussi un mur qui enfermerait un joueur. Pour le vérifier, nous utilisons un parcours en largeur (BFS) à partir de la position du joueur, qui explore les cases accessibles grâce à getAccessibleNeighbors. Nous avons écrit cet algorithme une seule fois, dans la méthode privée findShortestPath, qui reçoit la condition d'arrivée en paramètre. Deux méthodes getShortestPath l'utilisent : l'une pour atteindre une ligne ou une colonne, dans le mode classique, l'autre pour atteindre une case précise, ce qui servira à poursuivre une cible dans le mode Pacman. Lors de la pose d'un mur, Game l'ajoute d'abord au plateau, vérifie avec hasPathToGoal que chaque joueur peut encore atteindre son objectif, et le retire sinon. Le parcours en largeur renvoie de plus le chemin le plus court, qui pourra être réutilisé par le joueur ordinateur.
+
+Les joueurs sont représentés par une classe abstraite, Player, qui contient tout ce qu'ils ont en commun : le nom, la position, le nombre de murs restants, le nombre de coups et l'objectif. Deux sous-classes la complètent, HumanPlayer et BotPlayer, qui redéfinissent la méthode abstraite isBot(). Pour gérer de la même façon deux et quatre joueurs, nous avons ajouté l'énumération GoalAxis : les joueurs 1 et 2 doivent atteindre une ligne (GOAL_Y), alors que les joueurs 3 et 4 doivent atteindre une colonne (GOAL_X). La méthode hasReachedGoal() compare la bonne coordonnée selon cet axe, si bien qu'une seule vérification de la victoire suffit pour tous les joueurs.
+
+Le comportement de l'ordinateur est séparé du joueur grâce au patron Strategy. BotPlayer possède une stratégie, de type BotStrategy, et lui délègue son tour dans computeNextTurn. Le sujet propose plusieurs niveaux de déplacement pour l'ordinateur : aléatoire, vers l'avant, puis vers le chemin le plus court. Avec ce patron, chaque niveau sera une classe qui implémente BotStrategy, et l'on pourra changer de niveau avec setStrategy sans modifier BotPlayer. Les stratégies RandomBotStrategy et ShortestPathBotStrategy sont pour l'instant prévues dans le diagramme, mais pas encore codées, et la partie ne crée pas encore de joueur-ordinateur.
+
+La classe Game est le point d'entrée du modèle. Elle crée le plateau et place les joueurs au milieu de leur bord de départ, puis gère les tours avec l'indice du joueur courant, qui passe au joueur suivant après chaque coup valide. Les méthodes moveCurrentPlayer et placeWallForCurrentPlayer vérifient les règles et renvoient un booléen, pour que le contrôleur sache si le coup a été accepté. Pour prévenir l'interface sans en dépendre, nous avons utilisé le patron Observer : Game garde une liste d'objets GameObserver, et les prévient après chaque coup (onBoardUpdated) et à la fin de la partie (onGameOver). Le modèle ne connaît ainsi que cette interface, et jamais les classes Swing de la vue.
+
+Enfin, l'énumération GameMode (CLASSIC ou PACMAN) est transmise à la partie dès sa création. Le mode Pacman n'est pas encore codé, mais le modèle l'anticipe : le plateau possède déjà une liste de pac-gommes, et le diagramme prévoit le nombre de vies de Pacman et le nombre de pac-gommes mangées dans Game, ainsi qu'une méthode resetGame() pour recommencer une partie.
 
 
 
@@ -41,11 +53,11 @@ Pour représenter les murs, nous avons fait le choix d'utiliser un Set d'objets 
 
 > 09/11/2026 :  Mise en place du projet
 
-La première séance a été consacrée à l'organisation du dépôt, avant toute conception. Nous avons créé le groupe GitLab `peignier-danree`, forké le dépôt du sujet dans ce groupe et ajouté l'enseignant comme **Reporter**. Le dépôt est privé, pour que les autres équipes ne puissent pas consulter notre code.
+La première séance a été consacrée à l'organisation du dépôt, avant toute conception. Nous avons créé le groupe GitLab `peignier-danree`, forké le dépôt du sujet dans ce groupe et ajouté l'enseignant comme **Reporter**. Le dépôt est privé, pour que les autres équipes ne puissent pas le consulter.
 
-Nous avons ensuite mis en place une structure commune avant d'écrire du code, pour éviter que chacun organise ses fichiers différemment. Le code source est placé dans `src/quoridor`, avec dès le départ les trois packages `model`, `view` et `controller`, pour imposer la séparation MVC. Les diagrammes PlantUML sont rangés dans `uml/` et la documentation dans `docs/`. Les fichiers fournis avec le sujet (énoncé, images, règles du jeu) ont été déplacés dans `docs/subject/`, pour garder la racine du projet lisible tout en conservant le sujet à portée de main.
+Nous avons ensuite mis en place une structure commune avant d'écrire du code, pour éviter que chacun organise ses fichiers différemment. Le code source est placé dans `src/quoridor`, avec dès le départ les trois packages `model`, `view` et `controller`, pour imposer la séparation MVC. Les diagrammes PlantUML sont rangés dans `uml/` et la documentation dans `docs/`. Les fichiers fournis avec le sujet ont été déplacés dans `docs/subject/`, pour garder la racine du projet lisible tout en conservant le sujet à portée de main.
 
-Nous avons enfin ajouté un fichier `.gitignore` qui exclut les fichiers compilés (`out/`, `*.class`) et la configuration personnelle d'IntelliJ (`.idea/`, `*.iml`). Ces fichiers sont propres à chaque machine : les partager aurait provoqué des conflits à chaque compilation et des chemins invalides chez l'autre membre du binôme. Nous avons également choisi d'écrire le code, les commentaires et les messages de commit en anglais, pour rester cohérents tout au long du projet.
+Nous avons enfin ajouté un fichier `.gitignore` qui exclut les fichiers compilés et la configuration personnelle d'IntelliJ. Ces fichiers sont propres à chaque machine : les partager aurait provoqué des conflits à chaque compilation et des chemins invalides chez l'autre membre du binôme. Nous avons également choisi d'écrire le code, les commentaires et les messages de commit en anglais, pour rester cohérents tout au long du projet.
 
 
 > 10/11/2026 : Organisation de l'UML et première version de la vue
@@ -60,6 +72,8 @@ Chaque écran demandé par le sujet est une classe à part, qui hérite de `JPan
 
 Ce jour-là, nous avons aussi exploré plusieurs directions artistiques pour l'interface, avant de retenir une ambiance « bois et feutre » inspirée du plateau de jeu réel.
 
+**État du diagramme le 10/11/2026 :**
+
 ![img_4.png](img_4.png)
 
 
@@ -72,7 +86,9 @@ Plutôt que de régler le style de chaque bouton un par un, j'ai écrit une mét
 
 Les couleurs de la page sont définies dans des constantes (`BACKGROUND`, `PRIMARY`, `PRIMARY_HOVER`) placées en haut de la classe, pour pouvoir changer la palette à un seul endroit. J'ai d'abord essayé une palette bleue, avant de revenir le lendemain à l'ambiance bois retenue au départ.
 
-J'ai enfin mis à jour le diagramme de classes pour qu'il corresponde au code : ajout des constructeurs, de l'attribut `container` de la fenêtre, des constantes et des méthodes de `HomePanel`. J'ai aussi ajouté la classe `Main` dans le diagramme global, car elle n'appartient à aucun des trois packages : elle se trouve à la racine du projet et crée la fenêtre au lancement de l'application. Elle est reliée à la fenêtre par une dépendance de création, et non par une composition, car elle ne garde pas de référence vers la fenêtre.
+J'ai enfin mis à jour le diagramme de classes pour qu'il corresponde au code : ajout des constructeurs et des méthodes de `HomePanel`. J'ai aussi ajouté la classe `Main` dans le diagramme global, car elle n'appartient à aucun des trois packages : elle se trouve à la racine du projet et crée la fenêtre au lancement de l'application. Elle est reliée à la fenêtre par une dépendance de création, et non par une composition, car elle ne garde pas de référence vers la fenêtre.
+
+**État du diagramme le 11/11/2026 :**
 
 ![img_5.png](img_5.png)
 
@@ -93,6 +109,8 @@ Certaines combinaisons d'options n'ont pas de sens, et doivent donc être imposs
 
 Enfin, je suis passé à la palette « bois et feutre » choisie au départ, et j'ai ajouté les boutons « Retour » et « Lancer la partie », reliés aux méthodes `goHome()` et `startGame()` du contrôleur.
 
+**État du diagramme le 12/11/2026 :**
+
 ![img_6.png](img_6.png)
 
 
@@ -107,6 +125,8 @@ Le contrôleur ne connaît que la fenêtre, et non les pages qu'elle contient. P
 J'ai ensuite créé la page de jeu, `GamePanel`, et la constante `GAME` correspondante. Cette page a besoin de la partie pour l'afficher, mais elle est créée au lancement de l'application, alors que la partie n'existe qu'après la validation de la configuration. La partie ne peut donc pas être passée au constructeur de la page. Comme pour la fenêtre et le contrôleur, je l'ai transmise après coup, grâce à une méthode `setGame`, que le contrôleur appelle juste avant d'afficher l'écran de jeu. J'ai vérifié ce fonctionnement en affichant temporairement la taille du plateau sur la page.
 
 Enfin, j'ai commencé le composant `BoardPanel`, qui dessine le plateau. Il reçoit lui aussi la partie par une méthode `setGame`, et lit la taille de la grille directement dans le modèle, avec `game.getBoard().getSize()`, et non dans l'écran de configuration. Une fois la partie créée, c'est en effet le modèle qui fait référence : l'écran de configuration n'est qu'un formulaire, utilisé une seule fois pour créer la partie. Le plateau ne dépend ainsi que du modèle, ce qui lui permettra d'être réutilisé sur l'écran de placement du mode Pacman.
+
+**État du diagramme le 17/11/2026 :**
 
 ![img_7.png](img_7.png)
 
@@ -125,16 +145,41 @@ Pour les pions, le plateau parcourt la liste des joueurs du modèle et dessine u
 
 Enfin, l'écran de jeu affiche maintenant ce plateau à la place du texte de test, et lui transmet la partie dans sa propre méthode `setGame`. La prochaine étape sera de détecter les clics sur le plateau, puis de brancher l'écran de jeu sur le modèle grâce à l'interface `GameObserver`, pour qu'il se redessine après chaque coup.
 
+**État du diagramme le 18/11/2026 :**
+
 ![img_8.png](img_8.png)
+
+
+> 19/11/2026 - 21/11/2026 : Clics, observateur et fusion avec le modèle
+
+Pour pouvoir jouer, j'ai d'abord rendu le plateau sensible aux clics, grâce à un `MouseAdapter` ajouté dans le constructeur de `BoardPanel`. Comme prévu le 18/11, la méthode `getCellAt` convertit la position du clic, en pixels, en une case de la grille : elle retire d'abord le décalage `OFFSET`, puis effectue une division entière par `CELL + GAP`, la taille d'une case et d'un couloir. Le quotient donne la colonne et la ligne, et le reste indique si le clic est tombé sur une case ou dans un couloir. Si le clic vise une case, le plateau appelle la méthode `onCellClicked` du contrôleur, qui demande au modèle de déplacer le pion du joueur actif. La vue se contente donc de traduire le clic : c'est le modèle qui vérifie si le déplacement respecte les règles.
+
+Il fallait ensuite que le plateau se redessine après chaque coup. J'ai pour cela utilisé le patron Observer : `GamePanel` implémente l'interface `GameObserver` du modèle, et le contrôleur l'abonne à la partie dans `startGame`, avec `addObserver`. Après un déplacement valide, le modèle prévient ses observateurs avec `onBoardUpdated()`, et l'écran de jeu redessine le plateau. Le contrôleur n'a ainsi jamais besoin de demander à la vue de se rafraîchir : il modifie le modèle, et c'est le modèle qui prévient la vue. La fin de partie suit le même chemin, avec `onGameOver`, qui affiche pour l'instant le nom du gagnant dans la console.
+
+J'ai ensuite fusionné la nouvelle version du modèle d'Alexis, dont le constructeur de `Game` accepte maintenant le nombre de joueurs et le choix de l'ordinateur. La méthode `startGame` transmet donc enfin ces deux valeurs, lues dans l'écran de configuration depuis le 17/11. La partie à quatre joueurs a fonctionné sans modifier le dessin, grâce aux quatre couleurs prévues le 18/11.
+
+Les couleurs des pions étaient jusqu'ici rangées dans `BoardPanel`. Je les ai déplacées dans une classe séparée, `Theme`, avec une méthode statique `getPawnColor`, car les futures fiches des joueurs devront afficher la même couleur que le pion de chaque joueur. Ces couleurs ne sont ainsi écrites qu'à un seul endroit (principe DRY).
+
+Avec Alexis, nous avons aussi adopté une convention commune pour les attributs : leur nom commence par le préfixe `m_`, par exemple `m_game` ou `m_boardPanel`. Ce préfixe distingue au premier coup d'œil un attribut d'un paramètre ou d'une variable locale, ce qui évite par exemple de confondre, dans `setGame`, l'attribut `m_game` et le paramètre `game`. Alexis l'utilisait déjà dans le modèle, et je l'ai appliqué à la vue et au contrôleur pour que tout le projet suive la même règle.
+
+J'ai également aligné le diagramme de classes sur le code. Chaque fichier ne décrit plus que son propre package, et toutes les relations entre packages sont regroupées dans le diagramme global. J'ai retiré les relations qui n'existaient pas encore dans le code, par exemple les fiches des joueurs contenues dans l'écran de jeu : elles reviendront au rendu 2, lorsque ces classes seront réalisées.
+
+Avec Alexis, nous avons choisi de ne pas représenter les classes de la bibliothèque Java comme `Color`, `Graphics2D` ou `JToggleButton`, pour garder le diagramme lisible. Seules `JFrame` et `JPanel` y figurent car elles montrent de quelles classes Swing héritent nos fenêtres et nos pages.
+
+Enfin, en testant la partie à quatre joueurs, j'ai remarqué que les joueurs 3 et 4 ne pouvaient pas gagner. La méthode `checkVictory` ne testait que l'axe vertical, alors que ces deux joueurs doivent atteindre une colonne, et non une ligne. Je l'ai corrigée, en accord avec Alexis, en utilisant la méthode `hasReachedGoal()` du joueur, qui tient compte de son axe d'arrivée.
+
+**État du diagramme le 21/11/2026 :**
+
+![img_9.png](img_9.png)
 
 
 ### 5. Conclusion
 
-Ce premier rendu nous a surtout permis de poser des bases solides. Le dépôt est organisé, le découpage MVC est en place dès la structure des packages, et chacun de nous peut travailler sur sa partie sans bloquer l'autre, grâce aux branches Git et aux diagrammes séparés par package. Le modèle contient déjà les règles du mode classique à deux joueurs, et l'interface permet de configurer une partie puis d'afficher le plateau et les pions.
+Ce premier rendu nous a surtout permis de poser des bases solides. Le dépôt est organisé, le découpage MVC est en place dès la structure des packages, et chacun de nous peut travailler sur sa partie sans bloquer l'autre, grâce aux branches Git et aux diagrammes séparés par package. Le modèle et l'interface sont maintenant reliés : on peut configurer une partie, puis la jouer à deux ou à quatre joueurs en cliquant sur les cases, jusqu'à la victoire de l'un d'eux.
 
 Plusieurs choix faits au début nous ont déjà fait gagner du temps : la représentation des murs par un point d'ancrage, commune au modèle et à la vue, le regroupement des noms de pages et des dimensions dans des constantes, et les petites méthodes de création de composants, qui évitent de répéter le même code. Nous avons aussi appris à revenir sur nos choix lorsqu'ils posaient problème, par exemple en regroupant toutes les règles de l'écran de configuration dans une seule méthode, ou en corrigeant notre diagramme de classes pour respecter les conventions UML vues en cours.
 
-Pour le rendu 2, la priorité est de rendre le jeu jouable. Côté interface, il faudra transformer un clic sur le plateau en déplacement ou en pose de mur, brancher l'écran de jeu sur le modèle grâce au patron Observer pour qu'il se redessine après chaque coup, et réaliser les fiches des joueurs ainsi que l'écran de fin de partie. Côté modèle, il faudra gérer les sauts par-dessus un pion, la partie à quatre joueurs, le joueur ordinateur et ses différentes stratégies, puis la variante Pacman avec son écran de placement des murs. Nous compléterons enfin le diagramme de classes pour qu'il corresponde entièrement au code final.
+Pour le rendu 2, il reste à terminer le jeu. Côté interface, il faudra transformer un clic dans un couloir en pose de mur et dessiner les murs, puis réaliser les fiches des joueurs et l'écran de fin de partie, avec la possibilité de rejouer. Côté modèle, il faudra gérer les sauts par-dessus un pion, le joueur ordinateur et ses stratégies, puis la variante Pacman avec son écran de placement des murs. Pour l'instant, un pion peut se déplacer sur une case déjà occupée : nous corrigerons ce problème en même temps que les sauts. Nous compléterons enfin le diagramme de classes pour qu'il corresponde entièrement au code final.
 
 
 

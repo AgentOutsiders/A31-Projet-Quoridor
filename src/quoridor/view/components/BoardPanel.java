@@ -3,6 +3,11 @@ package quoridor.view.components;
 import quoridor.model.Game;
 import quoridor.model.board.Position;
 import quoridor.model.players.Player;
+import quoridor.controller.GameController;
+import quoridor.view.Theme;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
@@ -33,27 +38,34 @@ public class BoardPanel extends JPanel {
     private static final Color BOARD = new Color(0xA9, 0x71, 0x3F);
     private static final Color CELL_COLOR = new Color(0xD9, 0xB2, 0x87);
 
-
-    private static final Color[] PAWN_COLORS = new Color[] {
-            new Color(0x46, 0x86, 0xC3),
-            new Color(0xD0, 0x2D, 0x2B),
-            new Color(0x6B, 0xCC, 0x4A),
-            new Color(0xFE, 0xC5, 0x1B)
-    };
-
-
-
     /* The current game to draw, given when the player starts a game */
-    private Game game;
+    private Game m_game;
 
-    public BoardPanel() {
+    /* The controller, to send the clicked cell */
+    private GameController m_controller;
+
+    public BoardPanel(GameController controller) {
         /* We draw the whole background ourselves, with rounded corners */
         setOpaque(false);
+
+        this.m_controller = controller;
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                /* We convert the click in pixels into a cell of the grid */
+                Position cell = getCellAt(e.getX(), e.getY());
+                if(cell != null) {
+                    System.out.println("Cell cliquée : " + cell);
+                    controller.onCellClicked(cell);
+                }
+            }
+        });
     }
 
     /* To give the game to the board, then draw it */
     public void setGame(Game game) {
-        this.game = game;
+        this.m_game = game;
 
         /* The panel size depends on the grid size (9 or 11), plus the margins on both sides */
         int totalPixels = getGridPixels() + OFFSET * 2;
@@ -66,7 +78,7 @@ public class BoardPanel extends JPanel {
 
     /* Width (and height) of the grid of cells, without the margins */
     private int getGridPixels() {
-        int size = game.getBoard().getSize();
+        int size = m_game.getBoard().getSize();
         return size * CELL + (size - 1) * GAP;
     }
 
@@ -75,7 +87,7 @@ public class BoardPanel extends JPanel {
         super.paintComponent(g);
 
         /* Nothing to draw before a game is started */
-        if (game == null) {
+        if (m_game == null) {
             return;
         }
 
@@ -104,7 +116,7 @@ public class BoardPanel extends JPanel {
 
     /* Cells: one loop for the columns, one for the rows, shifted by the margins */
     private void drawCells(Graphics2D g2) {
-        int size = game.getBoard().getSize();
+        int size = m_game.getBoard().getSize();
 
         g2.setColor(CELL_COLOR);
         for (int column = 0; column < size; column++) {
@@ -118,7 +130,7 @@ public class BoardPanel extends JPanel {
 
     /* Pawns: one circle per player, centered in its cell */
     private void drawPawns(Graphics2D g2) {
-        List<Player> players = game.getPlayers();
+        List<Player> players = m_game.getPlayers();
 
         for (int i = 0; i < players.size(); i++) {
             /* The player number i and its position on the grid */
@@ -133,8 +145,45 @@ public class BoardPanel extends JPanel {
             int shift = (CELL - PAWN) / 2;
 
             /* Each player has its own color */
-            g2.setColor(PAWN_COLORS[i]);
+            g2.setColor(Theme.getPawnColor(i));
             g2.fillOval(cellX + shift, cellY + shift, PAWN, PAWN);
         }
+    }
+
+    /* Converts a click in pixels into the cell under it, or null if it is not on a cell */
+    private Position getCellAt(int pixelX, int pixelY) {
+        if (m_game == null) {
+            return null;
+        }
+
+        /* Pixels from the top-left corner of the grid, without the margins */
+        int gridX = pixelX - OFFSET;
+        int gridY = pixelY - OFFSET;
+
+        /* Click on the frame, before the grid */
+        if (gridX < 0 || gridY < 0) {
+            return null;
+        }
+
+        /* Number of the column and the row (one cell + one corridor = CELL + GAP pixels) */
+        int column = gridX / (CELL + GAP);
+        int row = gridY / (CELL + GAP);
+
+        /* Position inside this cell + corridor block */
+        int insideX = gridX % (CELL + GAP);
+        int insideY = gridY % (CELL + GAP);
+
+        /* Click in a corridor, between two cells */
+        if (insideX >= CELL || insideY >= CELL) {
+            return null;
+        }
+
+        /* Click after the last cell */
+        int size = m_game.getBoard().getSize();
+        if (column >= size || row >= size) {
+            return null;
+        }
+
+        return new Position(column, row);
     }
 }
