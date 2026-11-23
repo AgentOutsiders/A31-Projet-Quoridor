@@ -124,6 +124,69 @@ public class Board
         return neighbors;
     }
 
+    // Retrieves all valid destination cells for a pawn
+    public List<Position> getValidMoves(Position current, Set<Position> occupiedPositions)
+    {
+        List<Position> validMoves = new ArrayList<>();
+        if (!isInside(current))
+        {
+            return validMoves;
+        }
+
+        int[][] directions = {
+                {0, -1}, // Up
+                {0, 1},  // Down
+                {-1, 0}, // Left
+                {1, 0}   // Right
+        };
+
+        for (int[] dir : directions)
+        {
+            int dx = dir[0];
+            int dy = dir[1];
+            Position neighbor = new Position(current.getX() + dx, current.getY() + dy);
+
+            if (!canPass(current, neighbor))
+            {
+                continue;
+            }
+
+            if (!occupiedPositions.contains(neighbor))
+            {
+                validMoves.add(neighbor);
+            }
+            else
+            {
+                Position jumpStraight = new Position(neighbor.getX() + dx, neighbor.getY() + dy);
+
+                // Straight jump if no wall/edge behind the opponent and cell is not occupied
+                if (canPass(neighbor, jumpStraight) && !occupiedPositions.contains(jumpStraight))
+                {
+                    validMoves.add(jumpStraight);
+                }
+                else
+                {
+                    // Blocked behind the opponent: check perpendicular left and right cells
+                    int[][] perpendiculars = {
+                            {dy, dx},
+                            {-dy, -dx}
+                    };
+
+                    for (int[] perp : perpendiculars)
+                    {
+                        Position sidePos = new Position(neighbor.getX() + perp[0], neighbor.getY() + perp[1]);
+                        if (canPass(neighbor, sidePos) && !occupiedPositions.contains(sidePos))
+                        {
+                            validMoves.add(sidePos);
+                        }
+                    }
+                }
+            }
+        }
+
+        return validMoves;
+    }
+
     // PATHFINDING (BFS)
     // Public method for an entire board edge (Classic mode & wall anti-trap check)
     public List<Position> getShortestPath(Position start, int goalCoordinate, GoalAxis goalAxis)

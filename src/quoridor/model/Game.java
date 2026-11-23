@@ -5,8 +5,10 @@ import quoridor.model.players.GoalAxis;
 import quoridor.model.players.HumanPlayer;
 import quoridor.model.players.Player;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class Game
 {
@@ -101,23 +103,42 @@ public class Game
         return this.m_isFinished;
     }
 
+    // Returns all valid destination cells for the current player
+    public List<Position> getValidMovesForCurrentPlayer()
+    {
+        if (this.m_isFinished)
+        {
+            return new ArrayList<>();
+        }
+
+        Player current = getCurrentPlayer();
+        Set<Position> occupied = new HashSet<>();
+        for (Player player : this.m_players)
+        {
+            if (player != current)
+            {
+                occupied.add(player.getPosition());
+            }
+        }
+
+        return this.m_board.getValidMoves(current.getPosition(), occupied);
+    }
+
     // Moves the current player to a target position if valid
     public boolean moveCurrentPlayer(Position target)
     {
-        if (this.m_isFinished)
+        if (this.m_isFinished || target == null)
         {
             return false;
         }
 
         Player current = getCurrentPlayer();
 
-        // Check if the move is adjacent and not blocked by a wall
-        if (current.getPosition().isAdjacentTo(target) && this.m_board.canPass(current.getPosition(), target))
+        if (getValidMovesForCurrentPlayer().contains(target))
         {
             current.setPosition(target);
             current.incrementMoveCount();
 
-            // Check if this player has won
             if (checkVictory(current))
             {
                 this.m_isFinished = true;
