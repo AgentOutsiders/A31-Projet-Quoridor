@@ -1,9 +1,7 @@
 package quoridor.model;
 
 import quoridor.model.board.*;
-import quoridor.model.players.GoalAxis;
-import quoridor.model.players.HumanPlayer;
-import quoridor.model.players.Player;
+import quoridor.model.players.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +45,14 @@ public class Game
 
         // Player 2 (Top): Starts at (middle, 0), goal is row size - 1
         Position p2Pos = new Position(middle, 0);
-        this.m_players.add(new HumanPlayer("Player 2", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y));
+        if (this.m_computerOpponent)
+        {
+            this.m_players.add(new BotPlayer("Computer", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y, new ShortestPathBotStrategy()));
+        }
+        else
+        {
+            this.m_players.add(new HumanPlayer("Player 2", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y));
+        }
 
         if (this.m_playerCount == 4)
         {
@@ -221,5 +226,11 @@ public class Game
     private void nextTurn()
     {
         this.m_currentPlayerIndex = (this.m_currentPlayerIndex + 1) % this.m_players.size();
+
+        Player nextPlayer = getCurrentPlayer();
+        if (!this.m_isFinished && nextPlayer.isBot())
+        {
+            ((BotPlayer) nextPlayer).computeNextTurn(this);
+        }
     }
 }
