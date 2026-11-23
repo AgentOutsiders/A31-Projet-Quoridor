@@ -103,6 +103,17 @@ public class Game
         return this.m_isFinished;
     }
 
+    public void resetGame()
+    {
+        this.m_board.clear();
+        this.m_players.clear();
+        this.m_currentPlayerIndex = 0;
+        this.m_isFinished = false;
+
+        initPlayers(this.m_board.getSize(), this.m_wallsPerPlayer);
+        notifyBoardUpdated();
+    }
+
     // Returns all valid destination cells for the current player
     public List<Position> getValidMovesForCurrentPlayer()
     {

@@ -24,6 +24,12 @@ public class Board
         return this.m_size;
     }
 
+    public void clear()
+    {
+        this.m_walls.clear();
+        this.m_pacGums.clear();
+    }
+
     public boolean isInside(Position pos)
     {
         if (pos == null)
