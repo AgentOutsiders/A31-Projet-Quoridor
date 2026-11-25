@@ -41,19 +41,19 @@ public class Game
 
         // Player 1 (Bottom): Starts at (middle, size - 1), goal is row 0
         Position p1Pos = new Position(middle, boardSize - 1);
-        this.m_players.add(new HumanPlayer("Player 1", p1Pos, wallsPerPlayer, 0, GoalAxis.GOAL_Y));
+        this.m_players.add(new HumanPlayer("Joueur 1", p1Pos, wallsPerPlayer, 0, GoalAxis.GOAL_Y));
 
         // Player 2 (Top): Starts at (middle, 0), goal is row size - 1
         Position p2Pos = new Position(middle, 0);
-        this.m_players.add(new HumanPlayer("Player 2", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y));
+        this.m_players.add(new HumanPlayer("Joueur 2", p2Pos, wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_Y));
 
         if (this.m_playerCount == 4)
         {
             Position p3Pos = new Position(boardSize - 1, middle);
-            this.m_players.add(new HumanPlayer("Player 3", p3Pos, this.m_wallsPerPlayer, 0, GoalAxis.GOAL_X));
+            this.m_players.add(new HumanPlayer("Joueur 3", p3Pos, this.m_wallsPerPlayer, 0, GoalAxis.GOAL_X));
 
             Position p4Pos = new Position(0, middle);
-            this.m_players.add(new HumanPlayer("Player 4", p4Pos, this.m_wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_X));
+            this.m_players.add(new HumanPlayer("Joueur 4", p4Pos, this.m_wallsPerPlayer, boardSize - 1, GoalAxis.GOAL_X));
         }
     }
 
