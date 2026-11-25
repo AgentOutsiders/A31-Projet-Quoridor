@@ -48,7 +48,7 @@ public class PlayerInfoPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(inset, inset, inset, inset));
 
         /* The texts of the information lines are written by refresh */
-        m_playerName = createTitleLabel("Joueur " + player.getName());
+        m_playerName = createTitleLabel(player.getName());
         m_remainingWalls = createInfoLabel("");
         m_numberOfMoves = createInfoLabel("");
 
