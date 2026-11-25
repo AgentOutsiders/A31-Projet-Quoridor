@@ -1,9 +1,10 @@
 package quoridor.view.components;
 
+import quoridor.controller.GameController;
 import quoridor.model.Game;
 import quoridor.model.board.Position;
+import quoridor.model.board.Wall;
 import quoridor.model.players.Player;
-import quoridor.controller.GameController;
 import quoridor.view.Theme;
 
 import java.awt.event.MouseAdapter;
@@ -32,16 +33,20 @@ public class BoardPanel extends JPanel {
     private static final int FRAME_ARC = 30;
     private static final int BOARD_ARC = 20;
     private static final int CELL_ARC = 10;
+    private static final int WALL_ARC = 6;
 
     /* Color palette of the board */
     private static final Color FRAME = new Color(0x8A, 0x5A, 0x33);
     private static final Color BOARD = new Color(0xA9, 0x71, 0x3F);
     private static final Color CELL_COLOR = new Color(0xD9, 0xB2, 0x87);
 
+    /* Color of a wall without owner */
+    private static final Color WALL_COLOR = new Color(0x8B, 0x3A, 0x2B);
+
     /* The current game to draw, given when the player starts a game */
     private Game m_game;
 
-    /* The controller, to send the clicked cell */
+    /* The controller, to send the clicked cell or wall */
     private GameController m_controller;
 
     public BoardPanel(GameController controller) {
@@ -53,11 +58,17 @@ public class BoardPanel extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                /* We convert the click in pixels into a cell of the grid */
+                /* A click on a cell moves the pawn */
                 Position cell = getCellAt(e.getX(), e.getY());
-                if(cell != null) {
-                    System.out.println("Cell cliquée : " + cell);
-                    controller.onCellClicked(cell);
+                if (cell != null) {
+                    m_controller.onCellClicked(cell);
+                    return;
+                }
+
+                /* A click in a corridor places a wall */
+                Wall wall = getWallAt(e.getX(), e.getY());
+                if (wall != null) {
+                    m_controller.onWallClicked(wall);
                 }
             }
         });
@@ -98,6 +109,7 @@ public class BoardPanel extends JPanel {
         drawFrame(g2);
         drawBoard(g2);
         drawCells(g2);
+        drawWalls(g2);
         drawPawns(g2);
     }
 
@@ -125,6 +137,45 @@ public class BoardPanel extends JPanel {
                 int y = OFFSET + row * (CELL + GAP);
                 g2.fillRoundRect(x, y, CELL, CELL, CELL_ARC, CELL_ARC);
             }
+        }
+    }
+
+    /* Walls: one rounded rectangle in the corridor, two cells long, in the color of its owner */
+    private void drawWalls(Graphics2D g2) {
+        List<Player> players = m_game.getPlayers();
+
+        for (Wall wall : m_game.getBoard().getWalls()) {
+            int ownerIndex = players.indexOf(wall.getOwner());
+            if (ownerIndex == -1) {
+                g2.setColor(WALL_COLOR);
+            }
+            else {
+                g2.setColor(Theme.getPawnColor(ownerIndex));
+            }
+
+            /* Top-left corner of the anchor cell, in pixels */
+            Position pos = wall.getPosition();
+            int cellX = OFFSET + pos.getX() * (CELL + GAP);
+            int cellY = OFFSET + pos.getY() * (CELL + GAP);
+
+            int x, y, width, height;
+
+            if (wall.isHorizontal()) {
+                /* In the corridor under the anchor cell */
+                x = cellX;
+                y = cellY + CELL;
+                width = CELL * 2 + GAP;
+                height = GAP;
+            }
+            else {
+                /* In the corridor on the right of the anchor cell */
+                x = cellX + CELL;
+                y = cellY;
+                width = GAP;
+                height = CELL * 2 + GAP;
+            }
+
+            g2.fillRoundRect(x, y, width, height, WALL_ARC, WALL_ARC);
         }
     }
 
@@ -185,5 +236,68 @@ public class BoardPanel extends JPanel {
         }
 
         return new Position(column, row);
+    }
+
+    /* Converts a point in pixels into the wall that would be placed there, or null */
+    private Wall getWallAt(int pixelX, int pixelY) {
+        if (m_game == null) {
+            return null;
+        }
+
+        /* Pixels from the top-left corner of the grid, without the margins */
+        int gridX = pixelX - OFFSET;
+        int gridY = pixelY - OFFSET;
+
+        /* Point on the frame, before the grid */
+        if (gridX < 0 || gridY < 0) {
+            return null;
+        }
+
+        /* Column, row and position inside the cell + corridor block */
+        int column = gridX / (CELL + GAP);
+        int row = gridY / (CELL + GAP);
+        int insideX = gridX % (CELL + GAP);
+        int insideY = gridY % (CELL + GAP);
+
+        /* A wall needs exactly one corridor: not on a cell, not on an intersection */
+        boolean isVerticalCorridor = insideX >= CELL;
+        boolean isHorizontalCorridor = insideY >= CELL;
+        if (isVerticalCorridor == isHorizontalCorridor) {
+            return null;
+        }
+
+        int wx;
+        int wy;
+        boolean isHorizontal;
+        int size = m_game.getBoard().getSize();
+
+        if (isHorizontalCorridor) {
+            /* Corridor after the last row, or point in the margin on the right */
+            if (row >= size - 1 || column >= size) {
+                return null;
+            }
+
+            /* Under the row, and towards the closest intersection */
+            isHorizontal = true;
+            wy = row;
+            wx = (insideX < CELL / 2) ? column - 1 : column;
+        }
+        else {
+            /* Corridor after the last column, or point in the margin at the bottom */
+            if (column >= size - 1 || row >= size) {
+                return null;
+            }
+
+            /* On the right of the column, and towards the closest intersection */
+            isHorizontal = false;
+            wx = column;
+            wy = (insideY < CELL / 2) ? row - 1 : row;
+        }
+
+        /* Near the edge of the board, the wall is moved back inside */
+        wx = Math.max(0, Math.min(wx, size - 2));
+        wy = Math.max(0, Math.min(wy, size - 2));
+
+        return new Wall(new Position(wx, wy), isHorizontal);
     }
 }
