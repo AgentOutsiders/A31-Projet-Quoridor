@@ -1,5 +1,7 @@
 package quoridor.model.board;
 
+import quoridor.model.players.Player;
+
 import java.util.Objects;
 
 public class Wall
@@ -7,10 +9,20 @@ public class Wall
     private final Position m_position;
     private final boolean m_isHorizontal;
 
+    /* Player who placed the wall, null if not placed yet */
+    private final Player m_owner;
+
+    /* Wall without owner, used by the view to say where the player wants a wall */
     public Wall(Position position, boolean isHorizontal)
+    {
+        this(position, isHorizontal, null);
+    }
+
+    public Wall(Position position, boolean isHorizontal, Player owner)
     {
         this.m_position = position;
         this.m_isHorizontal = isHorizontal;
+        this.m_owner = owner;
     }
 
     public Position getPosition()
@@ -23,7 +35,12 @@ public class Wall
         return this.m_isHorizontal;
     }
 
-    // Checks if this 2-cell wall blocks a move between two adjacent positions
+    public Player getOwner()
+    {
+        return this.m_owner;
+    }
+
+    /* Checks if this 2-cell wall blocks a move between two adjacent positions */
     public boolean blocksPassage(Position from, Position to)
     {
         int wx = this.m_position.getX();
@@ -31,7 +48,7 @@ public class Wall
 
         if (this.m_isHorizontal)
         {
-            // Horizontal wall blocks vertical moves (Up <-> Down) on column wx or wx + 1
+            /* Horizontal wall blocks vertical moves (Up <-> Down) on column wx or wx + 1 */
             boolean sameColumn = (from.getX() == to.getX())
                     && (from.getX() == wx || from.getX() == wx + 1);
             boolean crossesWallLine = (from.getY() == wy && to.getY() == wy + 1)
@@ -40,7 +57,7 @@ public class Wall
         }
         else
         {
-            // Vertical wall blocks horizontal moves (Left <-> Right) on row wy or wy + 1
+            /* Vertical wall blocks horizontal moves (Left <-> Right) on row wy or wy + 1 */
             boolean sameRow = (from.getY() == to.getY())
                     && (from.getY() == wy || from.getY() == wy + 1);
             boolean crossesWallColumn = (from.getX() == wx && to.getX() == wx + 1)
@@ -49,7 +66,7 @@ public class Wall
         }
     }
 
-    // Checks if this wall overlaps or crosses another wall
+    /* Checks if this wall overlaps or crosses another wall */
     public boolean overlapsWith(Wall other)
     {
         if (other == null)
@@ -60,13 +77,13 @@ public class Wall
         int dx = Math.abs(this.m_position.getX() - other.m_position.getX());
         int dy = Math.abs(this.m_position.getY() - other.m_position.getY());
 
-        // Same anchor: either identical overlap or crossing in a "+" shape
+        /* Same anchor: either identical overlap or crossing in a "+" shape */
         if (dx == 0 && dy == 0)
         {
             return true;
         }
 
-        // Same orientation and shifted by 1 cell: half-wall overlap
+        /* Same orientation and shifted by 1 cell: half-wall overlap */
         if (this.m_isHorizontal && other.m_isHorizontal)
         {
             return dy == 0 && dx == 1;
@@ -79,7 +96,7 @@ public class Wall
         return false;
     }
 
-    // Change equals so 2 Wall objects with the same x and y are considered equal
+    /* The owner is not used: two walls at the same place are equal, whoever placed them */
     @Override
     public boolean equals(Object obj)
     {
@@ -95,7 +112,7 @@ public class Wall
         return this.m_isHorizontal == other.m_isHorizontal && Objects.equals(this.m_position, other.m_position);
     }
 
-    // Change hashCode so 2 Wall objects with the same x and y have the same hash code bc hashset use hashcode
+    /* Same rule as equals, because HashSet uses hashCode */
     @Override
     public int hashCode()
     {
