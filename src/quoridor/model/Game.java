@@ -191,8 +191,9 @@ public class Game
             return false;
         }
 
-        // Simulate wall placement to check if it blocks paths
-        this.m_board.addWall(wall);
+        /* The current player becomes the owner of the wall */
+        Wall ownedWall = new Wall(wall.getPosition(), wall.isHorizontal(), getCurrentPlayer());
+        this.m_board.addWall(ownedWall);
 
         boolean pathExistsForAll = true;
         for (Player player : this.m_players)
