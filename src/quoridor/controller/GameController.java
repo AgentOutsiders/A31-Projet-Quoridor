@@ -3,6 +3,7 @@ package quoridor.controller;
 import quoridor.model.Game;
 import quoridor.model.GameMode;
 import quoridor.model.board.Position;
+import quoridor.model.board.Wall;
 import quoridor.view.QuoridorWindow;
 import quoridor.view.screens.ConfigPanel;
 import quoridor.view.screens.GamePanel;
@@ -73,5 +74,14 @@ public class GameController {
         System.out.println("Déplacement vers " + position + " accepté ? " + success);
     }
 
+    public void onWallClicked(Wall wall) {
+        if (m_game == null) {
+            System.out.println("Erreur : aucune partie n'est associée au contrôleur !");
+            return;
+        }
+
+        boolean success = m_game.placeWallForCurrentPlayer(wall);
+        System.out.println("Pose du mur " + wall.getPosition() + " (Horizontal ? " + wall.isHorizontal() + ") acceptée ? " + success);
+    }
 
 }
